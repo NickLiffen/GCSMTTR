@@ -1,0 +1,463 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+
+Description: >
+  GitHub Code Scanning - MTTR 
+
+Parameters:
+  ReadCapacityUnits:
+    Type: Number
+    Default: 10
+  WriteCapacityUnits:
+    Type: Number
+    Default: 10
+
+Resources: 
+
+  ### Log Groups ###
+
+  HttpApiAccessLogs: 
+    Type: "AWS::Logs::LogGroup"
+
+  SecretScannerStateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+
+  ### Lambda Functions ###
+
+  ## Authorizers
+  GitHubWebhookSecretValidator: 
+    Type: "AWS::Serverless::Function"
+    Properties: 
+      CodeUri: functions/authorizers/githubWebhookSecretValidator
+      Description: "A Lambda that validates a GitHub Secret"
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+          EVENT_BUS_NAME: !Ref GSSAREventBus
+      Events: 
+        GatewayEndpoint: 
+          Properties: 
+            ApiId: !Ref HttpApi
+            Method: POST
+            Path: /github/webhook/validate
+          Type: HttpApi
+      Handler: lib/main.handler
+      Policies:
+        - AmazonSSMReadOnlyAccess
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref GSSAREventBus
+      Runtime: nodejs14.x
+      Timeout: 60
+      Tracing: Active
+
+  GitHubWebhookIPValidator:
+    Type: "AWS::Serverless::Function"
+    Properties: 
+      CodeUri: functions/authorizers/githubWebhookIPValidator
+      Description: "A Lambda Function that validates the IP comes from GitHub"
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+      Handler: lib/main.handler
+      Policies:
+        - AmazonSSMReadOnlyAccess
+      Runtime: nodejs14.x
+      Timeout: 60
+      Tracing: Active
+
+  ## DB Functions
+
+  CreateDBRecord:
+    Type: "AWS::Serverless::Function"
+    Properties: 
+      CodeUri: functions/createDBRecord
+      Description: "A Lambda Function that creates an initial record in the AllEventsTable when a new code scanning alert is found"
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+      Handler: lib/main.handler
+      Policies:
+        - AmazonSSMReadOnlyAccess
+      Runtime: nodejs14.x
+      Timeout: 60
+      Tracing: Active
+
+  UpdateDBRecord:
+    Type: "AWS::Serverless::Function"
+    Properties: 
+      CodeUri: functions/updateDBRecord
+      Description: "A Lambda Function that updates a record in the AllEventsTable when an existing code scanning alert is fixed/closed"
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+      Handler: lib/main.handler
+      Policies:
+        - AmazonSSMReadOnlyAccess
+      Runtime: nodejs14.x
+      Timeout: 60
+      Tracing: Active
+
+  ## DB Triggers ##
+
+  DBTrigger:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/handleDBRecordEvent
+      Handler: lib/main.handler
+      Runtime: nodejs14.x
+      Description: "A Lambda Function triggers from a DynamoDB Stream. Purpose is to build the data for the overview table"
+      Events:
+        UserEvent:
+          Type: DynamoDB
+          Properties:
+            StartingPosition: LATEST
+            BatchSize: 1
+            Stream: !GetAtt AllDataTable.StreamArn
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+      Tracing: Active
+      Timeout: 60
+      Policies:
+        - AmazonSSMReadOnlyAccess
+
+  ### Event Bus ###
+
+  GSSAREventBus: 
+    Type: AWS::Events::EventBus
+    Properties: 
+        Name: !Join [ "-", [ GCSMTTR, !Ref AWS::StackName ] ]
+  
+  ### API Gateways ###
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      AccessLogSettings:
+        DestinationArn: !GetAtt HttpApiAccessLogs.Arn
+        Format: >-
+          { "requestId":"$context.requestId","ip": "$context.identity.sourceIp",
+          "requestTime":"$context.requestTime","httpMethod":"$context.httpMethod",
+          "routeKey":"$context.routeKey","status":"$context.status",
+          "protocol":"$context.protocol","responseLength":"$context.responseLength",
+          "error" : $context.authorizer.error }
+      FailOnWarnings: True
+      RouteSettings:
+        "POST /github/alert":
+          ThrottlingBurstLimit: 10
+      Auth: 
+        Authorizers: 
+          LambdaAuthorizer: 
+            AuthorizerPayloadFormatVersion: "2.0"
+            EnableSimpleResponses: true
+            FunctionArn: !GetAtt GitHubWebhookIPValidator.Arn
+            FunctionInvokeRole: !GetAtt LambdaInvokeRole.Arn
+        DefaultAuthorizer: LambdaAuthorizer
+
+  ### IAM Roles & Policies ### 
+
+  StepFunctionsApiRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+      - PolicyName: AllowSFNExec
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: "states:StartExecution"
+              Resource: !Ref SecretScannerStateMachine
+
+  LambdaInvokeRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+
+  LambdaInvokePolicy: 
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "LambdaInvokePolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: "lambda:InvokeFunction"
+            Resource: !GetAtt GitHubWebhookIPValidator.Arn
+      Roles: 
+        - Ref: "LambdaInvokeRole"
+
+  ### State Machines (Step Functions) ### 
+
+  SecretScannerStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: stepfunctions/secretscanner.yml
+      DefinitionSubstitutions:
+        UpdateDBRecordFunctionArn: !GetAtt UpdateDBRecord.Arn
+        CreateDBRecordFunctionArn: !GetAtt CreateDBRecord.Arn
+        AllDataTable: !Ref AllDataTable
+      Type: EXPRESS
+      Events:
+        EBRule:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref GSSAREventBus
+            RetryPolicy:
+              MaximumRetryAttempts: 2
+            DeadLetterConfig:
+              Type: SQS
+              QueueLogicalId: SecretScannerDeadLetterQueue
+            Pattern:
+              source:
+                - custom.kickOffSecretScanRemediation
+              detail-type:
+                - transaction         
+      Logging:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt SecretScannerStateMachineLogGroup.Arn
+        IncludeExecutionData: true
+        Level: ALL
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GitHubWebhookSecretValidator
+        - CloudWatchLogsFullAccess
+
+    ###### DynamoDB Table ######
+
+  AllDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      ContributorInsightsSpecification:
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: "254"
+        Enabled: true
+      SSESpecification:
+        SSEEnabled: true
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: organisationName
+          AttributeType: S
+        - AttributeName: repositoryName
+          AttributeType: S
+        - AttributeName: alertID
+          AttributeType: S
+        - AttributeName: alertCreatedAt
+          AttributeType: S
+        - AttributeName: alertClosedAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: alertByOrganisationName
+          KeySchema:
+            - AttributeName: organisationName
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: alertByRepositoryName
+          KeySchema:
+            - AttributeName: repositoryName
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: alertByAlertID
+          KeySchema:
+            - AttributeName: alertID
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: alertByRepositoryNameAndAlertID
+          KeySchema:
+            - AttributeName: repositoryName
+              KeyType: HASH
+            - AttributeName: alertID
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: alertByOrganisationNameAndRepositoryName
+          KeySchema:
+            - AttributeName: organisationName
+              KeyType: HASH
+            - AttributeName: repositoryName
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: alertByRepositoryNameAndAlertCreatedAt
+          KeySchema:
+            - AttributeName: repositoryName
+              KeyType: HASH
+            - AttributeName: alertCreatedAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: alertByRepositoryNameAndAlertClosedAt
+          KeySchema:
+            - AttributeName: repositoryName
+              KeyType: HASH
+            - AttributeName: alertClosedAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+
+  AllEventsTableWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 85
+      MinCapacity: 5
+      ResourceId: !Sub table/${AllDataTable}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  AllEventsTableWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: WriteAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref AllEventsTableWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 75.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+
+  DataOverviewTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      ContributorInsightsSpecification:
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: organisationName
+          AttributeType: S
+        - AttributeName: repositoryName
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: summaryByOrganisationName
+          KeySchema:
+            - AttributeName: organisationName
+              KeyType: HASH
+            - AttributeName: repositoryName
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: summaryByrepositoryName
+          KeySchema:
+            - AttributeName: repositoryName
+              KeyType: HASH
+            - AttributeName: organisationName
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+   
+  DataOverviewTableWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 85
+      MinCapacity: 5
+      ResourceId: !Sub table/${DataOverviewTable}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  DataOverviewTableWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: WriteAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref DataOverviewTableWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 75.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType:
+            DynamoDBWriteCapacityUtilization
+
+###### Outputs ######
+
+Outputs:
+  HttpApiUrl:
+    Description: URL of your API endpoint
+    Value:
+      Fn::Sub: 'https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
+  HttpApiId:
+    Description: Api id of HttpApi
+    Value:
+      Ref: HttpApi
+
+
