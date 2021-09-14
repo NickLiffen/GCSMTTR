@@ -42,7 +42,7 @@ Resources:
           Properties: 
             ApiId: !Ref HttpApi
             Method: POST
-            Path: /github/webhook/validate
+            Path: /github/alert
           Type: HttpApi
       Handler: lib/main.handler
       Policies:
