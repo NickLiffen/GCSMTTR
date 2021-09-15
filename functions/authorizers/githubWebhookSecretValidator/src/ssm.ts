@@ -13,7 +13,7 @@ export const ssm = async (): Promise<void> => {
 
     if (Parameters) {
       Parameters.forEach((param) => {
-        const name = param.Name ? param.Name.replace("/gssar/", "") : "";
+        const name = param.Name ? param.Name.replace("/gcsmttr/", "") : "";
         const value = param.Value ? param.Value : "";
         process.env[name] = value;
       });
