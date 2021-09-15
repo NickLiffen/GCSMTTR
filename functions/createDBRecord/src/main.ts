@@ -4,7 +4,7 @@ import { CodeScanningAlertCreatedEvent } from "@octokit/webhooks-types";
 
 export const handler =  (
   event: EventBridgeEvent<"transaction", CodeScanningAlertCreatedEvent>
-): Response => {
+): string => {
   const { detail: { alert, repository, organization} } = event; 
 
   const newDate = new Date(alert.created_at) as Date;
@@ -26,5 +26,5 @@ export const handler =  (
 
   console.log(response);
 
-  return response as Response;
+  return JSON.stringify(response);
 };
