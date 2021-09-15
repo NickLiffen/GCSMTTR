@@ -11,6 +11,8 @@ export const ssm = async (): Promise<void> => {
   try {
     const { Parameters } = await client.send(command);
 
+    console.log(Parameters);
+
     if (Parameters) {
       Parameters.forEach((param) => {
         const name = param.Name ? param.Name.replace("/gssar/", "") : "";
@@ -18,6 +20,8 @@ export const ssm = async (): Promise<void> => {
         process.env[name] = value;
       });
     }
+
+    console.log(process.env);
   } catch (err) {
     console.error("Error within function (ssm)", err);
     throw err;
