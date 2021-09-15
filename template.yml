@@ -19,7 +19,7 @@ Resources:
   HttpApiAccessLogs: 
     Type: "AWS::Logs::LogGroup"
 
-  SecretScannerStateMachineLogGroup:
+  GCSMTTRStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
@@ -182,7 +182,7 @@ Resources:
           Statement:
             - Effect: Allow
               Action: "states:StartExecution"
-              Resource: !Ref SecretScannerStateMachine
+              Resource: !Ref GCSMTTRStateMachine
 
   LambdaInvokeRole:
     Type: 'AWS::IAM::Role'
@@ -212,10 +212,10 @@ Resources:
 
   ### State Machines (Step Functions) ### 
 
-  SecretScannerStateMachine:
+  GCSMTTRStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
-      DefinitionUri: stepfunctions/secretscanner.yml
+      DefinitionUri: stepfunctions/gcsmttr.yml
       DefinitionSubstitutions:
         UpdateDBRecordFunctionArn: !GetAtt UpdateDBRecord.Arn
         CreateDBRecordFunctionArn: !GetAtt CreateDBRecord.Arn
@@ -230,7 +230,7 @@ Resources:
               MaximumRetryAttempts: 2
             DeadLetterConfig:
               Type: SQS
-              QueueLogicalId: SecretScannerDeadLetterQueue
+              QueueLogicalId: gcsmttrDeadLetterQueue
             Pattern:
               source:
                 - custom.kickOffSecretScanRemediation
@@ -239,12 +239,16 @@ Resources:
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt SecretScannerStateMachineLogGroup.Arn
+              LogGroupArn: !GetAtt GCSMTTRStateMachineLogGroup.Arn
         IncludeExecutionData: true
         Level: ALL
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref GitHubWebhookSecretValidator
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CreateDBRecord
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateDBRecord
         - CloudWatchLogsFullAccess
 
     ###### DynamoDB Table ######
