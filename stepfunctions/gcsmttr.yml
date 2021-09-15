@@ -17,7 +17,9 @@ States:
     Default: Success State
   Format Record for DB Entry:
     Type: Task
-    Resource: "${CreateDBRecordFunctionArn}"
+    Resource: "arn:aws:states:::lambda:invoke"
+    Parameters:
+      FunctionName: "${CreateDBRecordFunctionName}"
     TimeoutSeconds: 10
     HeartbeatSeconds: 30
     Retry:
