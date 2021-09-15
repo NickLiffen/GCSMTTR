@@ -17,16 +17,16 @@ export const handler = async (
   const response = {
     record: {
       id: `${repository.full_name}/${alert.number}` as string,
-      alertID: alert.number as number,
+      alertID: alert.number.toString() as string,
       alertURL: alert.html_url as string,
       alertCreatedAtFullTimestamp: alert.created_at as string,
       repositoryName: repository.name as string,
       organisationName: (organization
         ? organization.login
         : repository.owner.login) as string,
-      alertCreatedAtYear: newDate.getUTCFullYear() as number,
-      alertCreatedAtMonth: newDate.getUTCMonth() as number,
-      alertCreatedAtDate: newDate.getUTCDate() as number,
+      alertCreatedAtYear: newDate.getUTCFullYear().toString() as string,
+      alertCreatedAtMonth: newDate.getUTCMonth().toString() as string,
+      alertCreatedAtDate: newDate.getUTCDate().toString() as string,
       alertClosedAtFullTimestamp: null,
     },
   } as Response;

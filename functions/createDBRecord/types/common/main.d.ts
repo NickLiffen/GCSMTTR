@@ -1,13 +1,13 @@
 type record = {
   id: string;
-  alertID: number;
+  alertID: string;
   alertURL: string;
   alertCreatedAtFullTimestamp: string;
   repositoryName: string;
   organisationName: string;
-  alertCreatedAtYear: number;
-  alertCreatedAtMonth: number;
-  alertCreatedAtDate: number;
+  alertCreatedAtYear: string;
+  alertCreatedAtMonth: string;
+  alertCreatedAtDate: string;
   alertClosedAtFullTimestamp: null;
 };
 
