@@ -279,7 +279,7 @@ Resources:
           AttributeType: S
         - AttributeName: alertID
           AttributeType: S
-        - AttributeName: alertCreatedAt
+        - AttributeName: alertCreatedAtFullTimestamp
           AttributeType: S
         - AttributeName: alertClosedAt
           AttributeType: S
@@ -340,7 +340,7 @@ Resources:
           KeySchema:
             - AttributeName: repositoryName
               KeyType: HASH
-            - AttributeName: alertCreatedAt
+            - AttributeName: alertCreatedAtFullTimestamp
               KeyType: RANGE
           Projection:
             ProjectionType: ALL

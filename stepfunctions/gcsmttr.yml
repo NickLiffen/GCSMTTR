@@ -45,22 +45,22 @@ States:
       Item:
         id:
           S.$: "$.record.id"
-        organisation:
+        organisationName:
           S.$: "$.record.organisationName"
-        repository:
+        repositoryName:
           S.$: "$.record.repositoryName"
         alertID:
-          S.$: "$.record.alertID"
+          N.$: "$.record.alertID"
         alertURL:
           S.$: "$.record.alertURL"
         alertCreatedAtFullTimestamp:
           S.$: "$.record.alertCreatedAtFullTimestamp"
         alertCreatedAtYear:
-          S.$: "$.record.alertCreatedAtYear"
+          N.$: "$.record.alertCreatedAtYear"
         alertCreatedAtMonth:
-          S.$: "$.record.alertCreatedAtMonth"
+          N.$: "$.record.alertCreatedAtMonth"
         alertCreatedAtDate:
-          S.$: "$.record.alertCreatedAtDate"
+          N.$: "$.record.alertCreatedAtDate"
         alertClosedAtFullTimestamp:
           S.$: "$.record.alertClosedAtFullTimestamp"
     ResultPath: null

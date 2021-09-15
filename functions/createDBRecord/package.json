@@ -18,6 +18,7 @@
     "@types/ip": "^1.1.0",
     "@types/json-schema": "^7.0.9",
     "@types/node": "^16.6.1",
+    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "eslint": "^7.32.0",
@@ -36,6 +37,8 @@
     "url": "https://github.com/NickLiffen/GSSAR"
   },
   "dependencies": {
-    "@aws-sdk/client-ssm": "^3.26.0"
+    "@aws-sdk/client-ssm": "^3.26.0",
+    "@octokit/webhooks-types": "^4.6.1",
+    "uuid": "^8.3.2"
   }
 }
