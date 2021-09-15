@@ -7,6 +7,11 @@ export const secretVerifier = async (
   try {
     const body = event.body as string;
     const signature = event.headers["x-hub-signature-256"] as string;
+
+    console.log('body',body);
+    console.log('signature', signature);
+    console.log('process.env.GITHUB_WEBHOOKS_SECRET', process.env.GITHUB_WEBHOOKS_SECRET);
+
     const authedAnswer = await verify(
       process.env.GITHUB_WEBHOOKS_SECRET,
       body,

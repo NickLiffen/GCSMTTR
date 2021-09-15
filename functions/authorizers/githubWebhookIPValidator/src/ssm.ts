@@ -4,7 +4,7 @@ export const ssm = async (): Promise<void> => {
   const region = process.env.REGION ? process.env.REGION : "us-east-1";
   const client = new SSMClient({ region });
   const command = new GetParametersByPathCommand({
-    Path: "/gssar",
+    Path: "/gcsmttr",
     WithDecryption: true,
   });
 
