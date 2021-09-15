@@ -24,5 +24,7 @@ export const handler =  (
     }
   } as Response
 
+  console.log(response);
+
   return response as Response;
 };
