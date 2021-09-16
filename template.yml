@@ -96,9 +96,12 @@ Resources:
         Variables: 
           NODE_ENV: Production
           REGION: !Ref "AWS::Region"
+          TABLE_NAME: !Ref AllDataTable
       Handler: lib/main.handler
       Policies:
         - AmazonSSMReadOnlyAccess
+        - DynamoDBReadPolicy:
+            TableName: !Ref AllDataTable
       Runtime: nodejs14.x
       Timeout: 60
       Tracing: Active

@@ -72,8 +72,11 @@ States:
   Format Record for DB Update:
     Type: Task
     Resource: "${UpdateDBRecordFunctionArn}"
+    Parameters:
+      alert.$: "$.alert"
+      repository.$: "$.repository"
+      organization.$: "$.organization"
     TimeoutSeconds: 10
-    HeartbeatSeconds: 30
     Retry:
       - ErrorEquals:
           - Lambda.ServiceException

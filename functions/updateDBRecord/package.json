@@ -36,6 +36,8 @@
     "url": "https://github.com/NickLiffen/GSSAR"
   },
   "dependencies": {
-    "@aws-sdk/client-ssm": "^3.26.0"
+    "@aws-sdk/client-dynamodb": "^3.31.0",
+    "@aws-sdk/client-ssm": "^3.26.0",
+    "@octokit/webhooks-types": "^4.7.0"
   }
 }
