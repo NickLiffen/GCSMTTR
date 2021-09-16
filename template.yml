@@ -218,7 +218,7 @@ Resources:
       DefinitionUri: stepfunctions/gcsmttr.yml
       DefinitionSubstitutions:
         UpdateDBRecordFunctionArn: !GetAtt UpdateDBRecord.Arn
-        CreateDBRecordFunctionName: !GetAtt CreateDBRecord.Arn
+        CreateDBRecordFunctionArn: !GetAtt CreateDBRecord.Arn
         AllDataTable: !Ref AllDataTable
       Type: EXPRESS
       Events:
