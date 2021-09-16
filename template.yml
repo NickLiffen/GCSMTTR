@@ -387,7 +387,7 @@ Resources:
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
 
-  DataOverviewTable:
+  RepositoryOverviewTable:
     Type: AWS::DynamoDB::Table
     Properties:
       ContributorInsightsSpecification:
@@ -402,7 +402,7 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
-        - AttributeName: organisationName
+        - AttributeName: monthlyPeriod
           AttributeType: S
         - AttributeName: repositoryName
           AttributeType: S
@@ -410,9 +410,20 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: summaryByOrganisationName
+        - IndexName: summaryByrepositoryNameandMonthlyPeriod
           KeySchema:
-            - AttributeName: organisationName
+            - AttributeName: repositoryName
+              KeyType: HASH
+            - AttributeName: monthlyPeriod
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: summaryByMonthlyPeriodAndRepositoryName
+          KeySchema:
+            - AttributeName: monthlyPeriod
               KeyType: HASH
             - AttributeName: repositoryName
               KeyType: RANGE
@@ -421,34 +432,111 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits
-        - IndexName: summaryByrepositoryName
+        - IndexName: summaryByMonthlyPeriod
           KeySchema:
-            - AttributeName: repositoryName
+            - AttributeName: monthlyPeriod
               KeyType: HASH
-            - AttributeName: organisationName
-              KeyType: RANGE
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits
    
-  DataOverviewTableWriteCapacityScalableTarget:
+  RepositoryOverviewTableWriteCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
       MaxCapacity: 85
       MinCapacity: 5
-      ResourceId: !Sub table/${DataOverviewTable}
+      ResourceId: !Sub table/${RepositoryOverviewTable}
       RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
       ScalableDimension: dynamodb:table:WriteCapacityUnits
       ServiceNamespace: dynamodb
 
-  DataOverviewTableWriteScalingPolicy:
+  RepositoryOverviewTableWriteScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
       PolicyName: WriteAutoScalingPolicy
       PolicyType: TargetTrackingScaling
-      ScalingTargetId: !Ref DataOverviewTableWriteCapacityScalableTarget
+      ScalingTargetId: !Ref RepositoryOverviewTableWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 75.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType:
+            DynamoDBWriteCapacityUtilization
+
+  OrganisationOverviewTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      ContributorInsightsSpecification:
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: monthlyPeriod
+          AttributeType: S
+        - AttributeName: organisationName
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: summaryByRrganisationNameandMonthlyPeriod
+          KeySchema:
+            - AttributeName: organisationName
+              KeyType: HASH
+            - AttributeName: monthlyPeriod
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: summaryByMonthlyPeriodAndOrganisationName
+          KeySchema:
+            - AttributeName: monthlyPeriod
+              KeyType: HASH
+            - AttributeName: organisationName
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+        - IndexName: summaryByMonthlyPeriod
+          KeySchema:
+            - AttributeName: monthlyPeriod
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+   
+  OrganisationOverviewTableWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 85
+      MinCapacity: 5
+      ResourceId: !Sub table/${OrganisationOverviewTable}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  OrganisationOverviewTableWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: WriteAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref OrganisationOverviewTableWriteCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         TargetValue: 75.0
         ScaleInCooldown: 60
