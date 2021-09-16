@@ -3,10 +3,11 @@ import delay from "delay";
 
 import { CodeScanningAlertCreatedEvent } from "@octokit/webhooks-types";
 
-const handler = async (
+export const handler = async (
   event: EventBridgeEvent<"transaction", CodeScanningAlertCreatedEvent>
 ): Promise<Response> => {
   console.log('Function Invoked Successfully.');
+  console.log(event);
   await delay(1000);
   const {
     detail: { alert, repository, organization },
@@ -35,5 +36,3 @@ const handler = async (
 
   return response as Response;
 };
-
-export default handler;
