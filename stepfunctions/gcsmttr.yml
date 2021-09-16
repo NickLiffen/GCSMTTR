@@ -110,10 +110,18 @@ States:
       Key:
         id:
           S.$: "$.record.id"
-      UpdateExpression: "set alertClosedAtFullTimestamp = :alertClosedAtFullTimestamp"
+      UpdateExpression: "set alertClosedAtReason = :alertClosedAtReason, alertClosedAtFullTimestamp = :alertClosedAtFullTimestamp, alertClosedAtYear = :alertClosedAtYear, alertClosedAtMonth = :alertClosedAtMonth, alertClosedAtDate = :alertClosedAtDate"
       ExpressionAttributeValues:
+        ":alertClosedAtReason":
+          S.$: "$.record.alertClosedAtReason"
         ":alertClosedAtFullTimestamp":
           S.$: "$.record.alertClosedAtFullTimestamp"
+        ":alertClosedAtYear":
+          S.$: "$.record.alertClosedAtYear"
+        ":alertClosedAtMonth":
+          S.$: "$.record.alertClosedAtMonth"
+        ":alertClosedAtDate":
+          S.$: "$.record.alertClosedAtDate"
     ResultPath: null
     Next: Success State
   Process Error:

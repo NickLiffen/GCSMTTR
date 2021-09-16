@@ -14,7 +14,7 @@ export const handler = async (
 
   const { alert, repository } = event;
 
-  const key = `${repository.full_name}/${alert.number}`;
+  const id = `${repository.full_name}/${alert.number}`;
 
   const config = {
     region: process.env.REGION,
@@ -24,7 +24,7 @@ export const handler = async (
     TableName: process.env.TABLE_NAME,
     Key: {
       id: {
-        S: `${key}`,
+        S: `${id}`,
       },
     },
   } as GetItemCommandInput;
@@ -33,18 +33,18 @@ export const handler = async (
   const command = new GetItemCommand(input);
   const { Item } = await client.send(command);
 
-  if (!Item) return { statusCode: 404 } as Response;
+  if (!Item) return { statusCode: 404, record: null } as Response;
 
   const date = alert.dismissed_at ? new Date(alert.dismissed_at) : new Date();
 
-  const response = {
-    statusCode: 200 as number,
-    reason: alert.dismissed_reason ? "ClosedByUser" : ("Fixed" as string),
+  const record = {
+    id,
+    alertClosedAtReason: (alert.dismissed_reason ? "ClosedByUser" : "Fixed") as string,
     alertClosedAtFullTimestamp: date.toString() as string,
     alertClosedAtYear: date.getUTCFullYear().toString() as string,
     alertClosedAtMonth: date.getUTCMonth().toString() as string,
     alertClosedAtDate: date.getUTCDate().toString() as string,
-  } as Response;
+  } as Input;
 
-  return response as Response;
+  return { statusCode: 404, record } as Response;
 };
