@@ -249,6 +249,8 @@ Resources:
             FunctionName: !Ref CreateDBRecord
         - LambdaInvokePolicy:
             FunctionName: !Ref UpdateDBRecord
+        - DynamoDBWritePolicy:
+            TableName: !Ref AllDataTable
         - CloudWatchLogsFullAccess
 
     ###### DynamoDB Table ######
