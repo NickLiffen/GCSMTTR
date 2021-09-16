@@ -8,7 +8,7 @@ type record = {
   alertCreatedAtYear: string;
   alertCreatedAtMonth: string;
   alertCreatedAtDate: string;
-  alertClosedAtFullTimestamp: null;
+  alertClosedAtFullTimestamp: string;
 };
 
 type Response = {

@@ -27,7 +27,7 @@ export const handler = async (
       alertCreatedAtYear: newDate.getUTCFullYear().toString() as string,
       alertCreatedAtMonth: newDate.getUTCMonth().toString() as string,
       alertCreatedAtDate: newDate.getUTCDate().toString() as string,
-      alertClosedAtFullTimestamp: null,
+      alertClosedAtFullTimestamp: "TBA",
     },
   } as Response;
 
