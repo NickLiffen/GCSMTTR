@@ -1,16 +1,15 @@
-import { EventBridgeEvent } from "aws-lambda";
 import delay from "delay";
 
 import { CodeScanningAlertCreatedEvent } from "@octokit/webhooks-types";
 
 export const handler = async (
-  event: EventBridgeEvent<"transaction", CodeScanningAlertCreatedEvent>
+  event: CodeScanningAlertCreatedEvent
 ): Promise<Response> => {
   console.log('Function Invoked Successfully.');
   console.log(event);
   await delay(1000);
   const {
-    detail: { alert, repository, organization },
+    alert, repository, organization ,
   } = event;
 
   const newDate = new Date(alert.created_at) as Date;

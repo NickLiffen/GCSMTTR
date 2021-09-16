@@ -4,7 +4,7 @@ StartAt: Filter Action Type
 States:
   Filter Action Type:
     Type: Choice
-    InputPath: "$.detail",
+    InputPath: "$.detail"
     Choices:
       - Variable: "$.action"
         StringEquals: "created"
@@ -20,9 +20,9 @@ States:
     Type: Task
     Resource: "${CreateDBRecordFunctionArn}"
     Parameters:
-      alert.$: "$.alert",
-      repository.$: "$.repository",
-      organization.$: "$.organization",
+      alert.$: "$.alert"
+      repository.$: "$.repository"
+      organization.$: "$.organization"
     TimeoutSeconds: 60
     Retry:
       - ErrorEquals:
