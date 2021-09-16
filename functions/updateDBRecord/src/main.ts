@@ -1,6 +1,4 @@
-import { APIGatewayProxyResultV2 } from "aws-lambda";
-
-import { CodeScanningAlertCreatedEvent } from "@octokit/webhooks-types";
+import { CodeScanningAlertClosedByUserEvent } from "@octokit/webhooks-types";
 
 import {
   DynamoDBClient,
@@ -10,8 +8,8 @@ import {
 } from "@aws-sdk/client-dynamodb";
 
 export const handler = async (
-  event: CodeScanningAlertCreatedEvent
-): Promise<APIGatewayProxyResultV2> => {
+  event: CodeScanningAlertClosedByUserEvent
+): Promise<Response> => {
   console.log(event);
 
   const { alert, repository } = event;
@@ -33,7 +31,20 @@ export const handler = async (
 
   const client = new DynamoDBClient(config);
   const command = new GetItemCommand(input);
-  const response = await client.send(command);
-  console.log(response);
-  return "success";
+  const { Item } = await client.send(command);
+
+  if (!Item) return { statusCode: 404 } as Response;
+
+  const date = alert.dismissed_at ? new Date(alert.dismissed_at) : new Date();
+
+  const response = {
+    statusCode: 200 as number,
+    reason: alert.dismissed_reason ? "ClosedByUser" : ("Fixed" as string),
+    alertClosedAtFullTimestamp: date.toString() as string,
+    alertClosedAtYear: date.getUTCFullYear().toString() as string,
+    alertClosedAtMonth: date.getUTCMonth().toString() as string,
+    alertClosedAtDate: date.getUTCDate().toString() as string,
+  } as Response;
+
+  return response as Response;
 };

@@ -91,8 +91,16 @@ States:
           - States.ALL
         ResultPath: "$"
         Next: Process Error
-    ResultPath: "$"
-    Next: Update MTTR Data Into Table
+    ResultPath: "$.dynamo"
+    Next: Should I Enter Into DB
+  Should I Enter Into DB:
+    Type: Choice
+    InputPath: "$.dynamo"
+    Choices:
+      - Variable: "$.statusCode"
+        NumericEquals: 200
+        Next: Update MTTR Data Into Table
+    Default: Success State
   Update MTTR Data Into Table:
     Type: Task
     Resource: "arn:aws:states:::dynamodb:updateItem"
