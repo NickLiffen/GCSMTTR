@@ -46,5 +46,5 @@ export const handler = async (
     alertClosedAtDate: date.getUTCDate().toString() as string,
   } as Input;
 
-  return { statusCode: 404, record } as Response;
+  return { statusCode: 200, record } as Response;
 };
