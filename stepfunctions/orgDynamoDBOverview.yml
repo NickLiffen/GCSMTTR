@@ -40,6 +40,21 @@ States:
           N.$: "$.record.alertCreatedAtDate"
         alertClosedAtFullTimestamp:
           S.$: "$.record.alertClosedAtFullTimestamp"
+    Retry:
+      - ErrorEquals:
+          - dynamodb.ResourceInUseException
+          - dynamodb.RequestLimitExceeded
+          - dynamodb.LimitExceededException
+          - dynamodb.ProvisionedThroughputExceededException
+          - States.Timeout
+        IntervalSeconds: 2
+        MaxAttempts: 3
+        BackoffRate: 2
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        ResultPath: "$"
+        Next: Process Error
     ResultPath: null
     Next: Success State
   Update Record:
@@ -63,6 +78,21 @@ States:
           S.$: "$.record.alertClosedAtMonth"
         ":alertClosedAtDate":
           S.$: "$.record.alertClosedAtDate"
+    Retry:
+      - ErrorEquals:
+          - dynamodb.ResourceInUseException
+          - dynamodb.RequestLimitExceeded
+          - dynamodb.LimitExceededException
+          - dynamodb.ProvisionedThroughputExceededException
+          - States.Timeout
+        IntervalSeconds: 2
+        MaxAttempts: 3
+        BackoffRate: 2
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        ResultPath: "$"
+        Next: Process Error
     ResultPath: null
     Next: Success State
   Process Error:

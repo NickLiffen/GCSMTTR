@@ -36,6 +36,21 @@ States:
           S.$: "$.record.reportingDate"
         openAlerts:
           N.$: "$.record.openAlerts"
+    Retry:
+      - ErrorEquals:
+          - dynamodb.ResourceInUseException
+          - dynamodb.RequestLimitExceeded
+          - dynamodb.LimitExceededException
+          - dynamodb.ProvisionedThroughputExceededException
+          - States.Timeout
+        IntervalSeconds: 2
+        MaxAttempts: 3
+        BackoffRate: 2
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        ResultPath: "$"
+        Next: Process Error
     ResultPath: null
     Next: Success State
   Insert Update Record:
@@ -51,6 +66,21 @@ States:
       ExpressionAttributeValues:
         ":openAlerts":
           S.$: "$.record.openAlerts"
+    Retry:
+      - ErrorEquals:
+          - dynamodb.ResourceInUseException
+          - dynamodb.RequestLimitExceeded
+          - dynamodb.LimitExceededException
+          - dynamodb.ProvisionedThroughputExceededException
+          - States.Timeout
+        IntervalSeconds: 2
+        MaxAttempts: 3
+        BackoffRate: 2
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        ResultPath: "$"
+        Next: Process Error
     ResultPath: null
     Next: Success State
   Modify Create Record:
@@ -80,6 +110,21 @@ States:
           N.$: "$.record.numberFixed"
         numberManuallyCosed:
           N.$: "$.record.numberManuallyCosed"
+    Retry:
+      - ErrorEquals:
+          - dynamodb.ResourceInUseException
+          - dynamodb.RequestLimitExceeded
+          - dynamodb.LimitExceededException
+          - dynamodb.ProvisionedThroughputExceededException
+          - States.Timeout
+        IntervalSeconds: 2
+        MaxAttempts: 3
+        BackoffRate: 2
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        ResultPath: "$"
+        Next: Process Error
     ResultPath: null
     Next: Success State
   Modify Create Record:
@@ -103,6 +148,21 @@ States:
           N.$: "$.record.TTRMilliseconds"
         ":MTTRMilliseconds":
           N.$: "$.record.MTTRMilliseconds"
+    Retry:
+      - ErrorEquals:
+          - dynamodb.ResourceInUseException
+          - dynamodb.RequestLimitExceeded
+          - dynamodb.LimitExceededException
+          - dynamodb.ProvisionedThroughputExceededException
+          - States.Timeout
+        IntervalSeconds: 2
+        MaxAttempts: 3
+        BackoffRate: 2
+    Catch:
+      - ErrorEquals:
+          - States.ALL
+        ResultPath: "$"
+        Next: Process Error
     ResultPath: null
     Next: Success State
   Process Error:
