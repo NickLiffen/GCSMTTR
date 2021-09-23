@@ -127,7 +127,7 @@ States:
         Next: Process Error
     ResultPath: null
     Next: Success State
-  Modify Create Record:
+  Modify Update Record:
     Type: Task
     Resource: "arn:aws:states:::dynamodb:updateItem"
     Parameters:
