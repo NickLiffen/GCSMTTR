@@ -1,0 +1,117 @@
+Comment: >-
+  A state machine that updates/creates records into the Repo Overview DynamoDB Table
+StartAt: Filter Action Type
+States:
+  Filter Action Type:
+    Type: Choice
+    InputPath: "$.detail"
+    Choices:
+      - Variable: "$.action"
+        StringEquals: "INSERT-CREATE"
+        Next: Insert Create Record
+      - Variable: "$.action"
+        StringEquals: "INSERT-UPDATE"
+        Next: Insert Update Record
+      - Variable: "$.action"
+        StringEquals: "MODIFY-CREATE"
+        Next: Modify Create Record
+      - Variable: "$.action"
+        StringEquals: "MODIFY-UPDATE"
+        Next: Modify Update Record
+    Default: Success State
+  Insert Create Record:
+    Type: Task
+    Resource: "arn:aws:states:::dynamodb:putItem"
+    Parameters:
+      TableName: "${RepoDataTable}"
+      ReturnConsumedCapacity: TOTAL
+      Item:
+        id:
+          S.$: "$.record.id"
+        organisationName:
+          S.$: "$.record.organisationName"
+        repositoryName:
+          S.$: "$.record.repositoryName"
+        reportingDate:
+          S.$: "$.record.reportingDate"
+        openAlerts:
+          N.$: "$.record.openAlerts"
+    ResultPath: null
+    Next: Success State
+  Insert Update Record:
+    Type: Task
+    Resource: "arn:aws:states:::dynamodb:updateItem"
+    Parameters:
+      TableName: "${RepoDataTable}"
+      ReturnConsumedCapacity: TOTAL
+      Key:
+        id:
+          S.$: "$.record.id"
+      UpdateExpression: "set openAlerts = :openAlerts"
+      ExpressionAttributeValues:
+        ":openAlerts":
+          S.$: "$.record.openAlerts"
+    ResultPath: null
+    Next: Success State
+  Modify Create Record:
+    Type: Task
+    Resource: "arn:aws:states:::dynamodb:putItem"
+    Parameters:
+      TableName: "${RepoDataTable}"
+      ReturnConsumedCapacity: TOTAL
+      Item:
+        id:
+          S.$: "$.record.id"
+        organisationName:
+          S.$: "$.record.organisationName"
+        repositoryName:
+          S.$: "$.record.repositoryName"
+        reportingDate:
+          S.$: "$.record.reportingDate"
+        openAlerts:
+          N.$: "$.record.openAlerts"
+        reportingDate:
+          S.$: "$.record.reportingDate"
+        TTRMilliseconds:
+          N.$: "$.record.TTRMilliseconds"
+        MTTRMilliseconds:
+          N.$: "$.record.MTTRMilliseconds"
+        numberFixed:
+          N.$: "$.record.numberFixed"
+        numberManuallyCosed:
+          N.$: "$.record.numberManuallyCosed"
+    ResultPath: null
+    Next: Success State
+  Modify Create Record:
+    Type: Task
+    Resource: "arn:aws:states:::dynamodb:updateItem"
+    Parameters:
+      TableName: "${AllDataTable}"
+      ReturnConsumedCapacity: TOTAL
+      Key:
+        id:
+          S.$: "$.record.id"
+      UpdateExpression: "set openAlerts = :openAlerts, numberFixed = :numberFixed, numberManuallyCosed = :numberManuallyCosed, TTRMilliseconds = :TTRMilliseconds, MTTRMilliseconds = :MTTRMilliseconds"
+      ExpressionAttributeValues:
+        ":openAlerts":
+          N.$: "$.record.openAlerts"
+        ":numberFixed":
+          N.$: "$.record.numberFixed"
+        ":numberManuallyCosed":
+          N.$: "$.record.numberManuallyCosed"
+        ":TTRMilliseconds":
+          N.$: "$.record.TTRMilliseconds"
+        ":MTTRMilliseconds":
+          N.$: "$.record.MTTRMilliseconds"
+    ResultPath: null
+    Next: Success State
+  Process Error:
+    Type: Pass
+    Parameters:
+      Cause.$: States.StringToJson($.Cause)
+    OutputPath: "$.Cause.errorMessage"
+    Next: Fail State
+  Success State:
+    Type: Succeed
+  Fail State:
+    Type: Fail

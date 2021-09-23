@@ -1,0 +1,77 @@
+Comment: >-
+  A state machine that updates/creates records into the Org Overview DynamoDB Table
+StartAt: Filter Action Type
+States:
+  Filter Action Type:
+    Type: Choice
+    InputPath: "$.detail"
+    Choices:
+      - Variable: "$.action"
+        StringEquals: "CREATE"
+        Next: Create Record
+      - Variable: "$.action"
+        StringEquals: "UPDATE"
+        Next: Update Record
+    Default: Success State
+  Create Record:
+    Type: Task
+    Resource: "arn:aws:states:::dynamodb:putItem"
+    Parameters:
+      TableName: "${OrgDataTable}"
+      ReturnConsumedCapacity: TOTAL
+      Item:
+        id:
+          S.$: "$.record.id"
+        organisationName:
+          S.$: "$.record.organisationName"
+        repositoryName:
+          S.$: "$.record.repositoryName"
+        alertID:
+          N.$: "$.record.alertID"
+        alertURL:
+          S.$: "$.record.alertURL"
+        alertCreatedAtFullTimestamp:
+          S.$: "$.record.alertCreatedAtFullTimestamp"
+        alertCreatedAtYear:
+          N.$: "$.record.alertCreatedAtYear"
+        alertCreatedAtMonth:
+          N.$: "$.record.alertCreatedAtMonth"
+        alertCreatedAtDate:
+          N.$: "$.record.alertCreatedAtDate"
+        alertClosedAtFullTimestamp:
+          S.$: "$.record.alertClosedAtFullTimestamp"
+    ResultPath: null
+    Next: Success State
+  Update Record:
+    Type: Task
+    Resource: "arn:aws:states:::dynamodb:updateItem"
+    Parameters:
+      TableName: "${OrgDataTable}"
+      ReturnConsumedCapacity: TOTAL
+      Key:
+        id:
+          S.$: "$.record.id"
+      UpdateExpression: "set alertClosedAtReason = :alertClosedAtReason, alertClosedAtFullTimestamp = :alertClosedAtFullTimestamp, alertClosedAtYear = :alertClosedAtYear, alertClosedAtMonth = :alertClosedAtMonth, alertClosedAtDate = :alertClosedAtDate"
+      ExpressionAttributeValues:
+        ":alertClosedAtReason":
+          S.$: "$.record.alertClosedAtReason"
+        ":alertClosedAtFullTimestamp":
+          S.$: "$.record.alertClosedAtFullTimestamp"
+        ":alertClosedAtYear":
+          S.$: "$.record.alertClosedAtYear"
+        ":alertClosedAtMonth":
+          S.$: "$.record.alertClosedAtMonth"
+        ":alertClosedAtDate":
+          S.$: "$.record.alertClosedAtDate"
+    ResultPath: null
+    Next: Success State
+  Process Error:
+    Type: Pass
+    Parameters:
+      Cause.$: States.StringToJson($.Cause)
+    OutputPath: "$.Cause.errorMessage"
+    Next: Fail State
+  Success State:
+    Type: Succeed
+  Fail State:
+    Type: Fail

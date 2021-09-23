@@ -126,6 +126,8 @@ Resources:
         Variables: 
           NODE_ENV: Production
           REGION: !Ref "AWS::Region"
+          TABLE_NAME: !Ref RepositoryOverviewTable
+          EVENT_BUS_NAME: !Ref GSSAREventBus
       Tracing: Active
       Timeout: 60
       Policies:
@@ -254,6 +256,72 @@ Resources:
             FunctionName: !Ref UpdateDBRecord
         - DynamoDBWritePolicy:
             TableName: !Ref AllDataTable
+        - CloudWatchLogsFullAccess
+
+  RepoOverviewStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: stepfunctions/repoDynamoDBOverview.yml
+      DefinitionSubstitutions:
+        RepoDataTable: !Ref RepositoryOverviewTable
+      Type: EXPRESS
+      Events:
+        EBRule:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref GSSAREventBus
+            RetryPolicy:
+              MaximumRetryAttempts: 2
+            DeadLetterConfig:
+              Type: SQS
+              QueueLogicalId: gcsmttrDeadLetterQueue
+            Pattern:
+              source:
+                - custom.kickOffRepoOverviewStateMachine
+              detail-type:
+                - transaction         
+      Logging:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt GCSMTTRStateMachineLogGroup.Arn
+        IncludeExecutionData: true
+        Level: ALL
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref RepositoryOverviewTable
+        - CloudWatchLogsFullAccess
+
+  OrgOverviewStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: stepfunctions/orgDynamoDBOverview.yml
+      DefinitionSubstitutions:
+        RepoDataTable: !Ref OrganisationOverviewTable
+      Type: EXPRESS
+      Events:
+        EBRule:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref GSSAREventBus
+            RetryPolicy:
+              MaximumRetryAttempts: 2
+            DeadLetterConfig:
+              Type: SQS
+              QueueLogicalId: gcsmttrDeadLetterQueue
+            Pattern:
+              source:
+                - custom.kickOffOrgOverviewStateMachine
+              detail-type:
+                - transaction         
+      Logging:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt GCSMTTRStateMachineLogGroup.Arn
+        IncludeExecutionData: true
+        Level: ALL
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref OrganisationOverviewTable
         - CloudWatchLogsFullAccess
 
     ###### DynamoDB Table ######

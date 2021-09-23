@@ -20,14 +20,13 @@ export const handler = async (
       alertID: alert.number.toString() as string,
       alertURL: alert.html_url as string,
       alertCreatedAtFullTimestamp: alert.created_at as string,
-      repositoryName: repository.name as string,
+      repositoryName: repository.full_name as string,
       organisationName: (organization
         ? organization.login
         : repository.owner.login) as string,
       alertCreatedAtYear: newDate.getUTCFullYear().toString() as string,
-      alertCreatedAtMonth: newDate.getUTCMonth().toString() as string,
-      alertCreatedAtDate: newDate.getUTCDate().toString() as string,
-      alertClosedAtFullTimestamp: "TBA",
+      alertCreatedAtMonth: newDate.toLocaleString('default', { month: 'long' }) as string,
+      alertCreatedAtDate: newDate.getUTCDate().toString() as string
     },
   } as Response;
 
