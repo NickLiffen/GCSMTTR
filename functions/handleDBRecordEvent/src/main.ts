@@ -34,7 +34,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
   console.log("repositoryName", repositoryName);
 
   const date = new Date();
-  const month = date.toLocaleString('default', { month: 'long' }) as string;
+  const month = date.toLocaleString("default", { month: "long" }) as string;
   const year = date.getUTCFullYear().toString() as string;
   const monthyPeriod = `${year}-${month}`;
 
@@ -63,115 +63,126 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
 
   const client = new DynamoDBClient(config);
   const command = new GetItemCommand(input);
-  const { Item } = (await client.send(command)) as GetItemCommandOutput;
 
-  console.log("Item", Item);
+  try {
+    const { Item } = (await client.send(command)) as GetItemCommandOutput;
 
-  let alertCount = Item ? parseInt(`${Item.openAlerts.N}`, 10) : 0;
-  let numberFixed = Item ? parseInt(`${Item.fixedAlerts.N}`, 10) : 0;
-  let numberManuallyCosed = Item ? parseInt(`${Item.closedAlerts.N}`, 10) : 0;
-  let TTR = Item ? parseInt(`${Item.TTR.N}`, 10) : 0;
-  let MTTR = Item ? parseInt(`${Item.MTTR.N}`, 10) : 0;
+    console.log("Item", Item);
 
-  if (eventName === "INSERT") {
-    if (!Item) {
+    let alertCount = Item ? parseInt(`${Item.openAlerts.N}`, 10) : 0;
+    let numberFixed = Item ? parseInt(`${Item.fixedAlerts.N}`, 10) : 0;
+    let numberManuallyCosed = Item ? parseInt(`${Item.closedAlerts.N}`, 10) : 0;
+    let TTR = Item ? parseInt(`${Item.TTR.N}`, 10) : 0;
+    let MTTR = Item ? parseInt(`${Item.MTTR.N}`, 10) : 0;
+
+    if (eventName === "INSERT") {
+      console.log("In INSERT");
+      if (!Item) {
+        Detail = {
+          statusCode: 200,
+          action: "INSERT-CREATE",
+          id: `${id}`,
+          repositoryName: repositoryName as string,
+          organizationName: (newImage
+            ? newImage.organizationName.S
+            : "") as string,
+          reportingDate: monthyPeriod as string,
+          openAlerts: "1" as string,
+        };
+      }
+
       Detail = {
         statusCode: 200,
-        action: "INSERT-CREATE",
+        action: "INSERT-UPDATE",
         id: `${id}`,
-        repositoryName: repositoryName as string,
-        organizationName: (newImage
-          ? newImage.organizationName.S
-          : "") as string,
-        reportingDate: monthyPeriod as string,
-        openAlerts: "1" as string,
+        openAlerts: (++alertCount).toString() as string,
       };
     }
 
-    Detail = {
-      statusCode: 200,
-      action: "INSERT-UPDATE",
-      id: `${id}`,
-      openAlerts: (++alertCount).toString() as string,
-    };
-  }
+    if (eventName === "MODIFY") {
+      console.log("In MODIFY");
+      const alertCreatedAtFullTimestamp = newImage
+        ? newImage.alertCreatedAtFullTimestamp.S
+        : "";
+      const alertClosedAtFullTimestamp = newImage
+        ? newImage.alertClosedAtFullTimestamp.S
+        : ""; // CHECK HERE
 
-  if (eventName === "MODIFY") {
-    const alertCreatedAtFullTimestamp = newImage
-      ? newImage.alertCreatedAtFullTimestamp.S
-      : "";
-    const alertClosedAtFullTimestamp = newImage
-      ? newImage.alertClosedAtFullTimestamp.S
-      : "";
+      const alertClosedAtReason = newImage
+        ? newImage.alertClosedAtReason.S
+        : ""; // CHECK HERE
 
-    const alertClosedAtReason = newImage ? newImage.alertClosedAtReason.S : "";
+      alertClosedAtReason === "FIXED" ? ++numberFixed : ++numberManuallyCosed;
 
-    alertClosedAtReason === "FIXED" ? ++numberFixed : ++numberManuallyCosed;
+      const createdAtTimestamp = alertCreatedAtFullTimestamp
+        ? new Date(alertCreatedAtFullTimestamp)
+        : new Date();
+      const closedAtTimestamp = alertClosedAtFullTimestamp
+        ? new Date(alertClosedAtFullTimestamp)
+        : new Date();
 
-    const createdAtTimestamp = alertCreatedAtFullTimestamp
-      ? new Date(alertCreatedAtFullTimestamp)
-      : new Date();
-    const closedAtTimestamp = alertClosedAtFullTimestamp
-      ? new Date(alertClosedAtFullTimestamp)
-      : new Date();
+      const milliseconds = differenceInMilliseconds(
+        closedAtTimestamp,
+        createdAtTimestamp
+      );
 
-    const milliseconds = differenceInMilliseconds(
-      closedAtTimestamp,
-      createdAtTimestamp
-    );
+      TTR = TTR + milliseconds;
+      MTTR = (MTTR + milliseconds) / (numberFixed + numberManuallyCosed);
 
-    TTR = TTR + milliseconds;
-    MTTR = (MTTR + milliseconds) / (numberFixed + numberManuallyCosed);
+      if (!Item) {
+        Detail = {
+          statusCode: 200 as number,
+          action: "MODIFY-CREATE" as string,
+          id: `${id}` as string,
+          repositoryName: repositoryName as string,
+          organizationName: (newImage
+            ? newImage.organizationName.S
+            : "") as string,
+          reportingDate: monthyPeriod as string,
+          TTRMilliseconds: milliseconds.toString() as string,
+          MTTRMilliseconds: milliseconds.toString() as string,
+          numberFixed: numberFixed.toString() as string,
+          numberManuallyCosed: numberManuallyCosed.toString() as string,
+          openAlerts: "0" as string,
+        };
+      }
 
-    if (!Item) {
       Detail = {
-        statusCode: 200 as number,
-        action: "MODIFY-CREATE" as string,
-        id: `${id}` as string,
-        repositoryName: repositoryName as string,
-        organizationName: (newImage
-          ? newImage.organizationName.S
-          : "") as string,
-        reportingDate: monthyPeriod as string,
-        TTRMilliseconds: milliseconds.toString() as string,
-        MTTRMilliseconds: milliseconds.toString() as string,
+        statusCode: 200,
+        action: "MODIFY-UPDATE",
+        id: `${id}`,
+        openAlerts: (--alertCount).toString() as string,
         numberFixed: numberFixed.toString() as string,
         numberManuallyCosed: numberManuallyCosed.toString() as string,
-        openAlerts: "0" as string,
+        TTRMilliseconds: TTR.toString() as string,
+        MTTRMilliseconds: MTTR.toString() as string,
       };
     }
 
-    Detail = {
-      statusCode: 200,
-      action: "MODIFY-UPDATE",
-      id: `${id}`,
-      openAlerts: (--alertCount).toString() as string,
-      numberFixed: numberFixed.toString() as string,
-      numberManuallyCosed: numberManuallyCosed.toString() as string,
-      TTRMilliseconds: TTR.toString() as string,
-      MTTRMilliseconds: MTTR.toString() as string,
-    };
+    const eventBridgeInput = {
+      Entries: [
+        {
+          Source: "custom.kickOffRepoOverviewStateMachine",
+          EventBusName: process.env.EVENT_BUS_NAME,
+          DetailType: "transaction",
+          Time: new Date(),
+          Detail,
+        },
+      ],
+    } as PutEventsCommandInput;
+
+    const eventBridgeCommand = new PutEventsCommand(eventBridgeInput);
+
+    console.log("Send to EventBridge");
+    const { FailedEntryCount } = (await eventBridgeClient.send(
+      eventBridgeCommand
+    )) as PutEventsCommandOutput;
+
+    const count = FailedEntryCount as number;
+
+    return count;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
-
-  const eventBridgeInput = {
-    Entries: [
-      {
-        Source: "custom.kickOffRepoOverviewStateMachine",
-        EventBusName: process.env.EVENT_BUS_NAME,
-        DetailType: "transaction",
-        Time: new Date(),
-        Detail,
-      },
-    ],
-  } as PutEventsCommandInput;
-
-  const eventBridgeCommand = new PutEventsCommand(eventBridgeInput);
-
-  const { FailedEntryCount } = (await eventBridgeClient.send(
-    eventBridgeCommand
-  )) as PutEventsCommandOutput;
-
-  const count = FailedEntryCount as number;
-
-  return count;
 };
