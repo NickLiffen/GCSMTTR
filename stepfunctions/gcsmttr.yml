@@ -62,7 +62,7 @@ States:
         alertCreatedAtYear:
           N.$: "$.record.alertCreatedAtYear"
         alertCreatedAtMonth:
-          N.$: "$.record.alertCreatedAtMonth"
+          S.$: "$.record.alertCreatedAtMonth"
         alertCreatedAtDate:
           N.$: "$.record.alertCreatedAtDate"
     ResultPath: null
