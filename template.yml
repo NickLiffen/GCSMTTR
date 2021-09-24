@@ -132,6 +132,8 @@ Resources:
       Timeout: 60
       Policies:
         - AmazonSSMReadOnlyAccess
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref GSSAREventBus
 
   ### Event Bus ###
 
