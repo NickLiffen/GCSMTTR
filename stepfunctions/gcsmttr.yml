@@ -65,8 +65,6 @@ States:
           N.$: "$.record.alertCreatedAtMonth"
         alertCreatedAtDate:
           N.$: "$.record.alertCreatedAtDate"
-        alertClosedAtFullTimestamp:
-          S.$: "$.record.alertClosedAtFullTimestamp"
     ResultPath: null
     Next: Success State
   Format Record for DB Update:
