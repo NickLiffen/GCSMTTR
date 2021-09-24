@@ -134,6 +134,8 @@ Resources:
         - AmazonSSMReadOnlyAccess
         - EventBridgePutEventsPolicy:
             EventBusName: !Ref GSSAREventBus
+        - DynamoDBReadPolicy:
+            TableName: !Ref RepositoryOverviewTable
 
   ### Event Bus ###
 

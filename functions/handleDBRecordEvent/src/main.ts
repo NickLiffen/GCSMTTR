@@ -33,12 +33,10 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
 
   console.log("repositoryName", repositoryName);
 
-  const d = new Date();
-  const month = d.getMonth().toString();
-  const year = d.getMonth().toString();
-  const regExp = /^0[0-9].*$/;
-  const qualifiedMonth = regExp.test(month) ? month : `0${month}`;
-  const monthyPeriod = `${year}-${qualifiedMonth}`;
+  const date = new Date();
+  const month = date.toLocaleString('default', { month: 'long' }) as string;
+  const year = date.getUTCFullYear().toString() as string;
+  const monthyPeriod = `${year}-${month}`;
 
   console.log("monthyPeriod", monthyPeriod);
 
