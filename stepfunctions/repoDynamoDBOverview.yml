@@ -61,11 +61,11 @@ States:
       ReturnConsumedCapacity: TOTAL
       Key:
         id:
-          S.$: "$.record.id"
+          S.$: "$.id"
       UpdateExpression: "set openAlerts = :openAlerts"
       ExpressionAttributeValues:
         ":openAlerts":
-          S.$: "$.record.openAlerts"
+          S.$: "$.openAlerts"
     Retry:
       - ErrorEquals:
           - dynamodb.ResourceInUseException
@@ -91,25 +91,23 @@ States:
       ReturnConsumedCapacity: TOTAL
       Item:
         id:
-          S.$: "$.record.id"
+          S.$: "$.id"
         organisationName:
-          S.$: "$.record.organisationName"
+          S.$: "$.organizationName"
         repositoryName:
-          S.$: "$.record.repositoryName"
-        reportingDate:
-          S.$: "$.record.reportingDate"
+          S.$: "$.repositoryName"
+        monthlyPeriod:
+          S.$: "$.reportingDate"
         openAlerts:
-          N.$: "$.record.openAlerts"
-        reportingDate:
-          S.$: "$.record.reportingDate"
+          N.$: "$.openAlerts"
         TTRMilliseconds:
-          N.$: "$.record.TTRMilliseconds"
+          N.$: "$.TTRMilliseconds"
         MTTRMilliseconds:
-          N.$: "$.record.MTTRMilliseconds"
+          N.$: "$.MTTRMilliseconds"
         numberFixed:
-          N.$: "$.record.numberFixed"
+          N.$: "$.numberFixed"
         numberManuallyCosed:
-          N.$: "$.record.numberManuallyCosed"
+          N.$: "$.numberManuallyCosed"
     Retry:
       - ErrorEquals:
           - dynamodb.ResourceInUseException
@@ -135,19 +133,19 @@ States:
       ReturnConsumedCapacity: TOTAL
       Key:
         id:
-          S.$: "$.record.id"
+          S.$: "$.id"
       UpdateExpression: "set openAlerts = :openAlerts, numberFixed = :numberFixed, numberManuallyCosed = :numberManuallyCosed, TTRMilliseconds = :TTRMilliseconds, MTTRMilliseconds = :MTTRMilliseconds"
       ExpressionAttributeValues:
         ":openAlerts":
-          N.$: "$.record.openAlerts"
+          N.$: "$.openAlerts"
         ":numberFixed":
-          N.$: "$.record.numberFixed"
+          N.$: "$.numberFixed"
         ":numberManuallyCosed":
-          N.$: "$.record.numberManuallyCosed"
+          N.$: "$.numberManuallyCosed"
         ":TTRMilliseconds":
-          N.$: "$.record.TTRMilliseconds"
+          N.$: "$.TTRMilliseconds"
         ":MTTRMilliseconds":
-          N.$: "$.record.MTTRMilliseconds"
+          N.$: "$.MTTRMilliseconds"
     Retry:
       - ErrorEquals:
           - dynamodb.ResourceInUseException
