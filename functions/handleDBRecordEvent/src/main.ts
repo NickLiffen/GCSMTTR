@@ -89,14 +89,14 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           reportingDate: monthyPeriod as string,
           openAlerts: "1" as string,
         };
+      } else {
+        Detail = {
+          statusCode: 200,
+          action: "INSERT-UPDATE",
+          id: `${id}`,
+          openAlerts: (++alertCount).toString() as string,
+        };
       }
-
-      Detail = {
-        statusCode: 200,
-        action: "INSERT-UPDATE",
-        id: `${id}`,
-        openAlerts: (++alertCount).toString() as string,
-      };
     }
 
     if (eventName === "MODIFY") {
@@ -145,19 +145,21 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           numberManuallyCosed: numberManuallyCosed.toString() as string,
           openAlerts: "0" as string,
         };
+      } else {
+        Detail = {
+          statusCode: 200,
+          action: "MODIFY-UPDATE",
+          id: `${id}`,
+          openAlerts: (--alertCount).toString() as string,
+          numberFixed: numberFixed.toString() as string,
+          numberManuallyCosed: numberManuallyCosed.toString() as string,
+          TTRMilliseconds: TTR.toString() as string,
+          MTTRMilliseconds: MTTR.toString() as string,
+        };
       }
-
-      Detail = {
-        statusCode: 200,
-        action: "MODIFY-UPDATE",
-        id: `${id}`,
-        openAlerts: (--alertCount).toString() as string,
-        numberFixed: numberFixed.toString() as string,
-        numberManuallyCosed: numberManuallyCosed.toString() as string,
-        TTRMilliseconds: TTR.toString() as string,
-        MTTRMilliseconds: MTTR.toString() as string,
-      };
     }
+
+    console.log("Detail", Detail)
 
     const eventBridgeInput = {
       Entries: [
@@ -170,6 +172,8 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
         },
       ],
     } as PutEventsCommandInput;
+
+    console.log("eventBridgeInput", eventBridgeInput)
 
     const eventBridgeCommand = new PutEventsCommand(eventBridgeInput);
 
