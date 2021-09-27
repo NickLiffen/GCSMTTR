@@ -84,7 +84,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           id: `${id}`,
           repositoryName: repositoryName as string,
           organizationName: (newImage
-            ? newImage.organizationName.S
+            ? newImage.organisationName.S
             : "") as string,
           reportingDate: monthyPeriod as string,
           openAlerts: "1" as string,
@@ -136,7 +136,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           id: `${id}` as string,
           repositoryName: repositoryName as string,
           organizationName: (newImage
-            ? newImage.organizationName.S
+            ? newImage.organisationName.S
             : "") as string,
           reportingDate: monthyPeriod as string,
           TTRMilliseconds: milliseconds.toString() as string,
