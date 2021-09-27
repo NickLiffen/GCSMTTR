@@ -122,6 +122,7 @@ Resources:
             StartingPosition: LATEST
             BatchSize: 1
             Stream: !GetAtt AllDataTable.StreamArn
+            MaximumRetryAttempts: 1
       Environment: 
         Variables: 
           NODE_ENV: Production
