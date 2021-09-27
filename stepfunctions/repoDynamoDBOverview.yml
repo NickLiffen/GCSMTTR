@@ -27,15 +27,15 @@ States:
       ReturnConsumedCapacity: TOTAL
       Item:
         id:
-          S.$: "$.record.id"
-        organisationName:
-          S.$: "$.record.organisationName"
+          S.$: "$.id"
+        organizationName:
+          S.$: "$.organizationName"
         repositoryName:
-          S.$: "$.record.repositoryName"
-        reportingDate:
-          S.$: "$.record.reportingDate"
+          S.$: "$.repositoryName"
+        monthlyPeriod:
+          S.$: "$.reportingDate"
         openAlerts:
-          N.$: "$.record.openAlerts"
+          N.$: "$.openAlerts"
     Retry:
       - ErrorEquals:
           - dynamodb.ResourceInUseException
