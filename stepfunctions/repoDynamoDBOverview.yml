@@ -129,7 +129,7 @@ States:
     Type: Task
     Resource: "arn:aws:states:::dynamodb:updateItem"
     Parameters:
-      TableName: "${AllDataTable}"
+      TableName: "${RepoDataTable}"
       ReturnConsumedCapacity: TOTAL
       Key:
         id:
