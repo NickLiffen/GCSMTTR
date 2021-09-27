@@ -24,6 +24,16 @@ Resources:
     Properties:
       RetentionInDays: 7
 
+  RepoOverviewStateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+
+  OrgOverviewStateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+
   ### Lambda Functions ###
 
   ## Authorizers
@@ -288,7 +298,7 @@ Resources:
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt GCSMTTRStateMachineLogGroup.Arn
+              LogGroupArn: !GetAtt RepoOverviewStateMachineLogGroup.Arn
         IncludeExecutionData: true
         Level: ALL
       Policies:
@@ -321,7 +331,7 @@ Resources:
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt GCSMTTRStateMachineLogGroup.Arn
+              LogGroupArn: !GetAtt OrgOverviewStateMachineLogGroup.Arn
         IncludeExecutionData: true
         Level: ALL
       Policies:
