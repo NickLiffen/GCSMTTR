@@ -69,9 +69,12 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
 
     console.log("Item", Item);
 
-    let alertCount = Item?.openAlerts ? parseInt(`${Item.openAlerts.N}`, 10) : 0;
-    let numberFixed = Item?.fixedAlerts ? parseInt(`${Item.fixedAlerts.N}`, 10) : 0;
-    let numberManuallyCosed = Item?.closedAlerts ? parseInt(`${Item.closedAlerts.N}`, 10) : 0;
+    let numberFixed = Item?.fixedAlerts
+      ? parseInt(`${Item.fixedAlerts.N}`, 10)
+      : 0;
+    let numberManuallyCosed = Item?.closedAlerts
+      ? parseInt(`${Item.closedAlerts.N}`, 10)
+      : 0;
     let TTR = Item?.TTR ? parseInt(`${Item.TTR.N}`, 10) : 0;
     let MTTR = Item?.MTTR ? parseInt(`${Item.MTTR.N}`, 10) : 0;
 
@@ -90,11 +93,13 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           openAlerts: "1" as string,
         };
       } else {
+        const openAlerts = (parseInt(`${Item.openAlerts.N}`, 10) + 1) as number;
+
         Detail = {
           statusCode: 200,
           action: "INSERT-UPDATE",
           id: `${id}`,
-          openAlerts: (++alertCount).toString() as string,
+          openAlerts: openAlerts.toString() as string,
         };
       }
     }
@@ -146,11 +151,13 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           openAlerts: "0" as string,
         };
       } else {
+        const openAlerts = (parseInt(`${Item.openAlerts.N}`, 10) - 1) as number;
+
         Detail = {
           statusCode: 200,
           action: "MODIFY-UPDATE",
           id: `${id}`,
-          openAlerts: (--alertCount).toString() as string,
+          openAlerts: openAlerts.toString() as string,
           numberFixed: numberFixed.toString() as string,
           numberManuallyCosed: numberManuallyCosed.toString() as string,
           TTRMilliseconds: TTR.toString() as string,
@@ -159,7 +166,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
       }
     }
 
-    console.log("Detail", Detail)
+    console.log("Detail", Detail);
 
     const eventBridgeInput = {
       Entries: [
@@ -173,7 +180,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
       ],
     } as PutEventsCommandInput;
 
-    console.log("eventBridgeInput", eventBridgeInput)
+    console.log("eventBridgeInput", eventBridgeInput);
 
     const eventBridgeCommand = new PutEventsCommand(eventBridgeInput);
 
