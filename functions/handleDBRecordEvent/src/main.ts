@@ -69,11 +69,11 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
 
     console.log("Item", Item);
 
-    let alertCount = Item ? parseInt(`${Item.openAlerts.N}`, 10) : 0;
-    let numberFixed = Item ? parseInt(`${Item.fixedAlerts.N}`, 10) : 0;
-    let numberManuallyCosed = Item ? parseInt(`${Item.closedAlerts.N}`, 10) : 0;
-    let TTR = Item ? parseInt(`${Item.TTR.N}`, 10) : 0;
-    let MTTR = Item ? parseInt(`${Item.MTTR.N}`, 10) : 0;
+    let alertCount = Item?.openAlerts ? parseInt(`${Item.openAlerts.N}`, 10) : 0;
+    let numberFixed = Item?.fixedAlerts ? parseInt(`${Item.fixedAlerts.N}`, 10) : 0;
+    let numberManuallyCosed = Item?.closedAlerts ? parseInt(`${Item.closedAlerts.N}`, 10) : 0;
+    let TTR = Item?.TTR ? parseInt(`${Item.TTR.N}`, 10) : 0;
+    let MTTR = Item?.MTTR ? parseInt(`${Item.MTTR.N}`, 10) : 0;
 
     if (eventName === "INSERT") {
       console.log("In INSERT");
