@@ -164,11 +164,11 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
     const eventBridgeInput = {
       Entries: [
         {
-          Source: "custom.kickOffRepoOverviewStateMachine",
-          EventBusName: process.env.EVENT_BUS_NAME,
-          DetailType: "transaction",
-          Time: new Date(),
-          Detail,
+          Source: "custom.kickOffRepoOverviewStateMachine" as string,
+          EventBusName: process.env.EVENT_BUS_NAME as string,
+          DetailType: "transaction" as string,
+          Time: new Date() as Date,
+          Detail: JSON.stringify(Detail) as string,
         },
       ],
     } as PutEventsCommandInput;
