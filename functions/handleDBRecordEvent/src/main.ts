@@ -93,6 +93,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
           openAlerts: "1" as string,
         };
       } else {
+        
         const openAlerts = (parseInt(`${Item.openAlerts.N}`, 10) + 1) as number;
 
         Detail = {

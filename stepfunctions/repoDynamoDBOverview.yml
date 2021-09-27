@@ -65,7 +65,7 @@ States:
       UpdateExpression: "set openAlerts = :openAlerts"
       ExpressionAttributeValues:
         ":openAlerts":
-          S.$: "$.openAlerts"
+          N.$: "$.openAlerts"
     Retry:
       - ErrorEquals:
           - dynamodb.ResourceInUseException
