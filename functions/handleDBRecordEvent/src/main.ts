@@ -1,200 +1,125 @@
 import { DynamoDBStreamEvent } from "aws-lambda";
-import { differenceInMilliseconds } from "date-fns";
 
 import {
-  DynamoDBClient,
-  DynamoDBClientConfig,
-  GetItemCommand,
-  GetItemCommandInput,
-  GetItemCommandOutput,
-} from "@aws-sdk/client-dynamodb";
-
-import {
-  EventBridgeClient,
-  PutEventsCommand,
-  PutEventsCommandInput,
-  PutEventsCommandOutput,
-} from "@aws-sdk/client-eventbridge";
+  eventBridge,
+  createDynamoID,
+  getDynamoRecord,
+  formatStreamData,
+  formatDynamoRecord,
+  formatDataToModifyEvent,
+} from "./utils";
 
 export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
-  let Detail = {};
-  const { Records } = event;
-
-  const { eventName, dynamodb } = Records[0];
-
-  const newImage = dynamodb ? dynamodb.NewImage : {};
-  const repositoryName = newImage ? newImage.repositoryName.S : "";
-
-  console.log("eventName", eventName);
-
-  console.log("dynamodb", dynamodb);
-
-  console.log("newImage", newImage);
-
-  console.log("repositoryName", repositoryName);
-
-  const date = new Date();
-  const month = date.toLocaleString("default", { month: "long" }) as string;
-  const year = date.getUTCFullYear().toString() as string;
-  const monthyPeriod = `${year}-${month}`;
-
-  console.log("monthyPeriod", monthyPeriod);
-
-  const id = `${monthyPeriod}/${repositoryName}`;
-
-  console.log("id", id);
-
-  const config = {
-    region: process.env.REGION,
-  } as DynamoDBClientConfig;
-
-  const eventBridgeClient = new EventBridgeClient({
-    region: process.env.REGION,
-  }) as EventBridgeClient;
-
-  const input = {
-    TableName: process.env.TABLE_NAME,
-    Key: {
-      id: {
-        S: `${id}`,
-      },
-    },
-  } as GetItemCommandInput;
-
-  const client = new DynamoDBClient(config);
-  const command = new GetItemCommand(input);
-
   try {
-    const { Item } = (await client.send(command)) as GetItemCommandOutput;
+    let Detail = {} as response;
 
-    console.log("Item", Item);
+    const [streamEvent, formattedStream] = await formatStreamData(event);
 
-    let numberFixed = Item?.fixedAlerts
-      ? parseInt(`${Item.fixedAlerts.N}`, 10)
-      : 0;
-    let numberManuallyCosed = Item?.closedAlerts
-      ? parseInt(`${Item.closedAlerts.N}`, 10)
-      : 0;
-    let TTR = Item?.TTR ? parseInt(`${Item.TTR.N}`, 10) : 0;
-    let MTTR = Item?.MTTR ? parseInt(`${Item.MTTR.N}`, 10) : 0;
+    console.log(`The event coming from the DynamoDB Stream is: ${streamEvent}`);
+    console.log(
+      `The formatted data coming from the DynamoDB Stream is: ${formattedStream}`
+    );
 
-    if (eventName === "INSERT") {
-      console.log("In INSERT");
-      if (!Item) {
-        Detail = {
-          statusCode: 200,
-          action: "INSERT-CREATE",
-          id: `${id}`,
-          repositoryName: repositoryName as string,
-          organizationName: (newImage
-            ? newImage.organisationName.S
-            : "") as string,
-          reportingDate: monthyPeriod as string,
-          openAlerts: "1" as string,
-        };
-      } else {
-        
-        const openAlerts = (parseInt(`${Item.openAlerts.N}`, 10) + 1) as number;
+    const [dynamoId, monthyPeriod] = await createDynamoID(formattedStream);
 
-        Detail = {
-          statusCode: 200,
-          action: "INSERT-UPDATE",
-          id: `${id}`,
-          openAlerts: openAlerts.toString() as string,
-        };
-      }
-    }
+    console.log(`The created DynamoDB ID is: ${dynamoId}`);
+    console.log(`The created monthly period is: ${monthyPeriod}`);
 
-    if (eventName === "MODIFY") {
-      console.log("In MODIFY");
-      const alertCreatedAtFullTimestamp = newImage
-        ? newImage.alertCreatedAtFullTimestamp.S
-        : "";
-      const alertClosedAtFullTimestamp = newImage
-        ? newImage.alertClosedAtFullTimestamp.S
-        : ""; // CHECK HERE
+    const record = await getDynamoRecord(dynamoId);
 
-      const alertClosedAtReason = newImage
-        ? newImage.alertClosedAtReason.S
-        : ""; // CHECK HERE
+    console.log(`The record coming from the DB is ${record}`);
+    console.log(`The item coming from the DB is ${record.Item}`);
 
-      alertClosedAtReason === "FIXED" ? ++numberFixed : ++numberManuallyCosed;
+    const formattedRecord = await formatDynamoRecord(record);
 
-      const createdAtTimestamp = alertCreatedAtFullTimestamp
-        ? new Date(alertCreatedAtFullTimestamp)
-        : new Date();
-      const closedAtTimestamp = alertClosedAtFullTimestamp
-        ? new Date(alertClosedAtFullTimestamp)
-        : new Date();
+    console.log(
+      `The formatted data from the DynamoDB Record is: ${formattedRecord}`
+    );
 
-      const milliseconds = differenceInMilliseconds(
-        closedAtTimestamp,
-        createdAtTimestamp
+    if (streamEvent === "INSERT" && !record.Item) {
+      console.log("INSERT", "EMPTY RECORD");
+
+      Detail = {
+        statusCode: 200,
+        action: "INSERT-CREATE",
+        id: `${dynamoId}`,
+        repositoryName: formattedStream.repositoryName,
+        organizationName: formattedStream.organisationName,
+        reportingDate: monthyPeriod,
+        openAlerts: "1",
+      } as insertCreateResponseFormat;
+
+      console.log(
+        `The following Deail object has been built within the INSERT-CREATE IF: ${Detail}`
       );
-
-      TTR = TTR + milliseconds;
-      MTTR = (MTTR + milliseconds) / (numberFixed + numberManuallyCosed);
-
-      if (!Item) {
-        Detail = {
-          statusCode: 200 as number,
-          action: "MODIFY-CREATE" as string,
-          id: `${id}` as string,
-          repositoryName: repositoryName as string,
-          organizationName: (newImage
-            ? newImage.organisationName.S
-            : "") as string,
-          reportingDate: monthyPeriod as string,
-          TTRMilliseconds: milliseconds.toString() as string,
-          MTTRMilliseconds: milliseconds.toString() as string,
-          numberFixed: numberFixed.toString() as string,
-          numberManuallyCosed: numberManuallyCosed.toString() as string,
-          openAlerts: "0" as string,
-        };
-      } else {
-        const openAlerts = (parseInt(`${Item.openAlerts.N}`, 10) - 1) as number;
-
-        Detail = {
-          statusCode: 200,
-          action: "MODIFY-UPDATE",
-          id: `${id}`,
-          openAlerts: openAlerts.toString() as string,
-          numberFixed: numberFixed.toString() as string,
-          numberManuallyCosed: numberManuallyCosed.toString() as string,
-          TTRMilliseconds: TTR.toString() as string,
-          MTTRMilliseconds: MTTR.toString() as string,
-        };
-      }
     }
 
-    console.log("Detail", Detail);
+    if (streamEvent === "INSERT" && record.Item) {
+      console.log("INSERT", "RECORD");
 
-    const eventBridgeInput = {
-      Entries: [
-        {
-          Source: "custom.kickOffRepoOverviewStateMachine" as string,
-          EventBusName: process.env.EVENT_BUS_NAME as string,
-          DetailType: "transaction" as string,
-          Time: new Date() as Date,
-          Detail: JSON.stringify(Detail) as string,
-        },
-      ],
-    } as PutEventsCommandInput;
+      Detail = {
+        statusCode: 200,
+        action: "INSERT-UPDATE",
+        id: `${dynamoId}`,
+        openAlerts: (formattedRecord.openAlerts + 1).toString() as string,
+      } as insertUpdateResponseFormat;
 
-    console.log("eventBridgeInput", eventBridgeInput);
+      console.log(
+        `The following Deail object has been built within the INSERT-RECORD IF: ${Detail}`
+      );
+    }
 
-    const eventBridgeCommand = new PutEventsCommand(eventBridgeInput);
+    const d = await formatDataToModifyEvent(formattedStream, formattedRecord);
 
-    console.log("Send to EventBridge");
-    const { FailedEntryCount } = (await eventBridgeClient.send(
-      eventBridgeCommand
-    )) as PutEventsCommandOutput;
+    if (streamEvent === "MODIFY" && !record.Item) {
+      console.log("MODIFY", "EMPTY RECORD");
 
-    const count = FailedEntryCount as number;
+      Detail = {
+        statusCode: 200,
+        action: "MODIFY-CREATE" as string,
+        id: `${dynamoId}` as string,
+        repositoryName: formattedStream.repositoryName as string,
+        organizationName: formattedStream.organisationName as string,
+        reportingDate: monthyPeriod as string,
+        openAlerts: "0" as string,
+        numberFixed: d.fixedAlerts as string,
+        numberManuallyCosed: d.closedAlerts as string,
+        totalTimeToRemediate: d.totalTimeToRemediate as string,
+        meanTimeToRemediate: d.meanTimeToRemediate as string,
+      } as modifyCreateResponseFormat;
+
+      console.log(
+        `The following Deail object has been built within the MODIFT-CREATE IF: ${Detail}`
+      );
+    }
+
+    if (streamEvent === "MODIFY" && record.Item) {
+      console.log("MODIFY", "RECORD");
+
+      Detail = {
+        statusCode: 200,
+        action: "MODIFY-UPDATE",
+        id: `${dynamoId}`,
+        openAlerts: d.openAlerts as string,
+        numberFixed: d.fixedAlerts as string,
+        numberManuallyCosed: d.closedAlerts as string,
+        totalTimeToRemediate: d.totalTimeToRemediate as string,
+        meanTimeToRemediate: d.meanTimeToRemediate as string,
+      } as modifyUpdateResponseFormat;
+      console.log(
+        `The following Deail object has been built within the MODIFT-UPDATE IF: ${Detail}`
+      );
+    }
+
+    const count = await eventBridge(Detail);
+
+    console.log(`The amount of failed EventBridge Errors: ${count}`);
+
+    if (count > 0) throw new Error("EventBridge failed");
 
     return count;
   } catch (error) {
     console.log(error);
-    throw error;
+    return 0;
   }
 };
