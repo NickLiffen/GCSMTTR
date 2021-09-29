@@ -100,10 +100,10 @@ States:
           S.$: "$.reportingDate"
         openAlerts:
           N.$: "$.openAlerts"
-        TTRMilliseconds:
-          N.$: "$.TTRMilliseconds"
-        MTTRMilliseconds:
-          N.$: "$.MTTRMilliseconds"
+        totalTimeToRemediate:
+          N.$: "$.totalTimeToRemediate"
+        meanTimeToRemediate:
+          N.$: "$.meanTimeToRemediate"
         numberFixed:
           N.$: "$.numberFixed"
         numberManuallyCosed:
@@ -134,7 +134,7 @@ States:
       Key:
         id:
           S.$: "$.id"
-      UpdateExpression: "set openAlerts = :openAlerts, numberFixed = :numberFixed, numberManuallyCosed = :numberManuallyCosed, TTRMilliseconds = :TTRMilliseconds, MTTRMilliseconds = :MTTRMilliseconds"
+      UpdateExpression: "set openAlerts = :openAlerts, numberFixed = :numberFixed, numberManuallyCosed = :numberManuallyCosed, totalTimeToRemediate = :totalTimeToRemediate, meanTimeToRemediate = :meanTimeToRemediate"
       ExpressionAttributeValues:
         ":openAlerts":
           N.$: "$.openAlerts"
@@ -142,10 +142,10 @@ States:
           N.$: "$.numberFixed"
         ":numberManuallyCosed":
           N.$: "$.numberManuallyCosed"
-        ":TTRMilliseconds":
-          N.$: "$.TTRMilliseconds"
-        ":MTTRMilliseconds":
-          N.$: "$.MTTRMilliseconds"
+        ":totalTimeToRemediate":
+          N.$: "$.totalTimeToRemediate"
+        ":meanTimeToRemediate":
+          N.$: "$.meanTimeToRemediate"
     Retry:
       - ErrorEquals:
           - dynamodb.ResourceInUseException
