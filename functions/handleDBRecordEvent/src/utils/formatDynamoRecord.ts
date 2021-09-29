@@ -5,20 +5,20 @@ export const formatDynamoRecord = async (
 ): Promise<parsedRecord> => {
   const { Item } = event;
 
-  const fixedAlerts = Item?.fixedAlerts.N
-    ? parseInt(Item?.fixedAlerts.N)
+  const fixedAlerts = Item?.fixedAlerts
+    ? parseInt(Item?.fixedAlerts.N as string)
     : (0 as number);
-  const closedAlerts = Item?.closedAlerts.N
-    ? parseInt(Item?.closedAlerts.N)
+  const closedAlerts = Item?.closedAlerts
+    ? parseInt(Item?.closedAlerts.N as string)
     : (0 as number);
-  const totalTimeToRemediate = Item?.totalTimeToRemediate.N
-    ? parseInt(Item?.totalTimeToRemediate.N)
+  const totalTimeToRemediate = Item?.totalTimeToRemediate
+    ? parseInt(Item?.totalTimeToRemediate.N as string)
     : (0 as number);
-  const meanTimeToRemediate = Item?.meanTimeToRemediate.N
-    ? parseInt(Item?.meanTimeToRemediate.N)
+  const meanTimeToRemediate = Item?.meanTimeToRemediate
+    ? parseInt(Item?.meanTimeToRemediate.N as string)
     : (0 as number);
-  const openAlerts = Item?.openAlerts.N
-    ? parseInt(Item?.openAlerts.N)
+  const openAlerts = Item?.openAlerts
+    ? parseInt(Item?.openAlerts.N as string)
     : (0 as number);
 
   const parsedRecord = {
