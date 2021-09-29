@@ -17,7 +17,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
 
     console.log(`The event coming from the DynamoDB Stream is: ${streamEvent}`);
     console.log(
-      `The formatted data coming from the DynamoDB Stream is: ${formattedStream}`
+      `The formatted data coming from the DynamoDB Stream is:`, formattedStream
     );
 
     const [dynamoId, monthyPeriod] = await createDynamoID(formattedStream);
@@ -27,13 +27,13 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
 
     const record = await getDynamoRecord(dynamoId);
 
-    console.log(`The record coming from the DB is ${record}`);
-    console.log(`The item coming from the DB is ${record.Item}`);
+    console.log(`The record coming from the DB is`, record);
+    console.log(`The item coming from the DB is`, record.Item);
 
     const formattedRecord = await formatDynamoRecord(record);
 
     console.log(
-      `The formatted data from the DynamoDB Record is: ${formattedRecord}`
+      `The formatted data from the DynamoDB Record is:`, formattedRecord
     );
 
     if (streamEvent === "INSERT" && !record.Item) {
@@ -50,7 +50,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
       } as insertCreateResponseFormat;
 
       console.log(
-        `The following Deail object has been built within the INSERT-CREATE IF: ${Detail}`
+        `The following Deail object has been built within the INSERT-CREATE IF:`, Detail
       );
     }
 
@@ -65,7 +65,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
       } as insertUpdateResponseFormat;
 
       console.log(
-        `The following Deail object has been built within the INSERT-RECORD IF: ${Detail}`
+        `The following Deail object has been built within the INSERT-RECORD IF: `, Detail
       );
     }
 
@@ -89,7 +89,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
       } as modifyCreateResponseFormat;
 
       console.log(
-        `The following Deail object has been built within the MODIFT-CREATE IF: ${Detail}`
+        `The following Deail object has been built within the MODIFT-CREATE IF: `, Detail
       );
     }
 
@@ -107,7 +107,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<number> => {
         meanTimeToRemediate: d.meanTimeToRemediate as string,
       } as modifyUpdateResponseFormat;
       console.log(
-        `The following Deail object has been built within the MODIFT-UPDATE IF: ${Detail}`
+        `The following Deail object has been built within the MODIFT-UPDATE IF: `, Detail
       );
     }
 
