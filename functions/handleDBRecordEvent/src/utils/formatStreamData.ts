@@ -7,14 +7,27 @@ export const formatStreamData = async (
 
   const { eventName: streamEvent, dynamodb } = Records[0];
 
-  const repositoryName = dynamodb?.NewImage?.repositoryName.S as string;
-  const organisationName = dynamodb?.NewImage?.organisationName.S as string;
+  const repositoryName = dynamodb?.NewImage?.repositoryName.S
+    ? dynamodb?.NewImage?.repositoryName.S
+    : ("" as string);
+
+  const organisationName = dynamodb?.NewImage?.organisationName.S
+    ? dynamodb?.NewImage?.organisationName.S
+    : ("" as string);
+
   const alertCreatedAtFullTimestamp = dynamodb?.NewImage
-    ?.alertCreatedAtFullTimestamp.S as string;
+    ?.alertCreatedAtFullTimestamp.S
+    ? dynamodb?.NewImage?.alertCreatedAtFullTimestamp.S
+    : ("" as string);
+
   const alertClosedAtFullTimestamp = dynamodb?.NewImage
-    ?.alertClosedAtFullTimestamp.S as string;
-  const alertClosedAtReason = dynamodb?.NewImage?.alertClosedAtReason
-    .S as string;
+    ?.alertClosedAtFullTimestamp.S
+    ? dynamodb?.NewImage?.alertClosedAtFullTimestamp.S
+    : ("" as string);
+
+  const alertClosedAtReason = dynamodb?.NewImage?.alertClosedAtReason.S
+    ? dynamodb?.NewImage?.alertClosedAtReason.S
+    : ("" as string);
 
   const formattedStream = {
     repositoryName,
