@@ -8,17 +8,25 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
   try {
     const { Records } = event;
 
-    const { eventName, dynamodb } = Records[0];
+    const { eventName: ev, dynamodb } = Records[0];
 
-    if (eventName === "REMOVE" || !eventName) return "remove event not supported";
+    if (ev === "REMOVE" || !ev) return "remove event not supported";
 
     const repositoryName = dynamodb?.NewImage?.repositoryName.S as string;
+
+    const eventName = {
+      S: ev,
+    };
+
+    const merged = { ...dynamodb?.NewImage, ...eventName };
+
+    console.log("merged", merged);
 
     const input = {
       MessageDeduplicationId: uuidv4(),
       MessageGroupId: repositoryName,
       QueueUrl: process.env.QUEUE_URL,
-      MessageBody: JSON.stringify(dynamodb?.NewImage),
+      MessageBody: JSON.stringify(merged),
     };
 
     console.log("input", input);

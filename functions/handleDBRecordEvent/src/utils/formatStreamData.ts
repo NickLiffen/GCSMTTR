@@ -1,17 +1,22 @@
-import { DynamoDBStreamEvent } from "aws-lambda";
+import { SQSEvent } from "aws-lambda";
 
 export const formatStreamData = async (
-  event: DynamoDBStreamEvent
+  event: SQSEvent
 ): Promise<streamResponse> => {
   const { Records } = event;
 
-  const { eventName: streamEvent, dynamodb } = Records[0];
+  const { body } = Records[0];
 
-  console.log(`Stream event: ${streamEvent}`);
-  console.log(`Stream data`, dynamodb);
+  const dynamodb = JSON.parse(body);
+
+  console.log(`Stream data is: `, dynamodb);
 
   const repositoryName = dynamodb?.NewImage?.repositoryName
     ? dynamodb?.NewImage?.repositoryName.S
+    : ("" as string);
+
+  const streamEvent = dynamodb?.NewImage?.eventName
+    ? dynamodb?.NewImage?.eventName.S
     : ("" as string);
 
   const organisationName = dynamodb?.NewImage?.organisationName
