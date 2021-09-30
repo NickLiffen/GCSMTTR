@@ -15,6 +15,7 @@
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",
     "@types/aws-lambda": "^8.10.82",
+    "@types/delay": "^3.1.0",
     "@types/ip": "^1.1.0",
     "@types/json-schema": "^7.0.9",
     "@types/node": "^16.6.1",
@@ -39,6 +40,7 @@
     "@aws-sdk/client-dynamodb": "^3.33.0",
     "@aws-sdk/client-eventbridge": "^3.33.0",
     "@aws-sdk/client-ssm": "^3.26.0",
-    "date-fns": "^2.24.0"
+    "date-fns": "^2.24.0",
+    "delay": "^5.0.0"
   }
 }

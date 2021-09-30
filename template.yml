@@ -262,9 +262,7 @@ Resources:
       ContentBasedDeduplication: false
       DeduplicationScope: messageGroup
       FifoThroughputLimit: perMessageGroupId 
-      DelaySeconds: 3
       FifoQueue: true
-      ReceiveMessageWaitTimeSeconds: 3
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
         maxReceiveCount: 10

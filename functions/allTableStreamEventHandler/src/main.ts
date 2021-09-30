@@ -1,5 +1,7 @@
 import { DynamoDBStreamEvent } from "aws-lambda";
 
+import delay from 'delay'
+
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 import { v4 as uuidv4 } from "uuid";
@@ -35,6 +37,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
     const client = new SQSClient({ region: process.env.REGION });
     const command = new SendMessageCommand(input);
 
+    await delay(500);
     await client.send(command);
 
     return "data to send to queue successfully";
