@@ -169,11 +169,8 @@ Resources:
       Tracing: Active
       Timeout: 30
       Policies:
-        - AmazonSSMReadOnlyAccess
-        - EventBridgePutEventsPolicy:
-            EventBusName: !Ref GSSAREventBus
-        - DynamoDBReadPolicy:
-            TableName: !Ref RepositoryOverviewTable
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt GSSAREventQueue.QueueName
 
   ### Event Bus ###
 
