@@ -138,7 +138,7 @@ Resources:
           TABLE_NAME: !Ref RepositoryOverviewTable
           EVENT_BUS_NAME: !Ref GSSAREventBus
       Tracing: Active
-      Timeout: 60
+      Timeout: 30
       Policies:
         - AmazonSSMReadOnlyAccess
         - EventBridgePutEventsPolicy:
@@ -167,7 +167,7 @@ Resources:
           REGION: !Ref "AWS::Region"
           QUEUE_URL: !Ref GSSAREventQueue
       Tracing: Active
-      Timeout: 60
+      Timeout: 30
       Policies:
         - AmazonSSMReadOnlyAccess
         - EventBridgePutEventsPolicy:
