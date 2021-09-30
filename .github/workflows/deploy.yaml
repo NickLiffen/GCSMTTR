@@ -62,6 +62,12 @@ jobs:
           npm cache clean --force
           npm install
           npm run build
+      - name: Install and Build Function (AllTableStreamEventHandler)
+        run: |
+          cd ./functions/allTableStreamEventHandler
+          npm cache clean --force
+          npm install
+          npm run build
       - name: SAM Build
         run: sam build --use-container
       - name: SAM Deploy
