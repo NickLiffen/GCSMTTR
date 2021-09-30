@@ -12,7 +12,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
 
     if (eventName === "REMOVE" || !eventName) return "remove event not supported";
 
-    const repositoryName = dynamodb?.NewImage?.repositoryName as string;
+    const repositoryName = dynamodb?.NewImage?.repositoryName.S as string;
 
     const input = {
       MessageDeduplicationId: uuidv4(),
