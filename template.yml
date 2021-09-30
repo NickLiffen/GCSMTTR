@@ -138,7 +138,8 @@ Resources:
           TABLE_NAME: !Ref RepositoryOverviewTable
           EVENT_BUS_NAME: !Ref GSSAREventBus
       Tracing: Active
-      Timeout: 30
+      Timeout: 3
+      ReservedConcurrentExecutions: 1
       Policies:
         - AmazonSSMReadOnlyAccess
         - EventBridgePutEventsPolicy:
@@ -167,7 +168,7 @@ Resources:
           REGION: !Ref "AWS::Region"
           QUEUE_URL: !Ref GSSAREventQueue
       Tracing: Active
-      Timeout: 30
+      Timeout: 3
       Policies:
         - SQSSendMessagePolicy:
             QueueName: !GetAtt GSSAREventQueue.QueueName
@@ -262,10 +263,11 @@ Resources:
       ContentBasedDeduplication: false
       DeduplicationScope: messageGroup
       FifoThroughputLimit: perMessageGroupId 
+      DelaySeconds: 15
       FifoQueue: true
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
-        maxReceiveCount: 10
+        maxReceiveCount: 16
 
   MyDeadLetterQueue: 
     Type: AWS::SQS::Queue
