@@ -5,7 +5,7 @@ import {
   PutEventsCommandOutput,
 } from "@aws-sdk/client-eventbridge";
 
-export const eventBridge = async (Detail: response): Promise<number> => {
+export const eventBridge = async (Detail: any): Promise<number> => {
   const eventBridgeClient = new EventBridgeClient({
     region: process.env.REGION,
   }) as EventBridgeClient;
