@@ -33,7 +33,7 @@ export const insertCreate = async (
         S: data.reportingDate,
       },
       openAlerts: {
-        S: data.openAlerts,
+        N: data.openAlerts,
       },
     },
   } as PutItemCommandInput;
@@ -59,19 +59,19 @@ export const modifyCreate = async (
         S: data.reportingDate,
       },
       openAlerts: {
-        S: data.openAlerts,
+        N: data.openAlerts,
       },
       totalTimeToRemediate: {
-        S: data.totalTimeToRemediate,
+        N: data.totalTimeToRemediate,
       },
       meanTimeToRemediate: {
-        S: data.meanTimeToRemediate,
+        N: data.meanTimeToRemediate,
       },
       numberFixed: {
-        S: data.numberFixed,
+        N: data.numberFixed,
       },
       numberManuallyCosed: {
-        S: data.numberManuallyCosed,
+        N: data.numberManuallyCosed,
       },
     },
   } as PutItemCommandInput;
@@ -91,7 +91,7 @@ export const insertUpdate = async (
     UpdateExpression: "SET openAlerts = :openAlerts",
     ExpressionAttributeValues: {
       ":openAlerts": {
-        S: data.openAlerts,
+        N: data.openAlerts,
       },
     },
   } as UpdateItemCommandInput;
@@ -112,19 +112,19 @@ export const modifyUpdate = async (
       "SET openAlerts = :openAlerts, numberFixed = :numberFixed, numberManuallyCosed = :numberManuallyCosed, totalTimeToRemediate = :totalTimeToRemediate, meanTimeToRemediate = :meanTimeToRemediate",
     ExpressionAttributeValues: {
       ":openAlerts": {
-        S: data.openAlerts,
+        N: data.openAlerts,
       },
       ":numberFixed": {
-        S: data.numberFixed,
+        N: data.numberFixed,
       },
       ":numberManuallyCosed": {
-        S: data.numberManuallyCosed,
+        N: data.numberManuallyCosed,
       },
       ":totalTimeToRemediate": {
-        S: data.totalTimeToRemediate,
+        N: data.totalTimeToRemediate,
       },
       ":meanTimeToRemediate": {
-        S: data.meanTimeToRemediate,
+        N: data.meanTimeToRemediate,
       },
     },
   } as UpdateItemCommandInput;
