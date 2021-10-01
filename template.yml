@@ -146,6 +146,8 @@ Resources:
             EventBusName: !Ref GSSAREventBus
         - DynamoDBReadPolicy:
             TableName: !Ref RepositoryOverviewTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref RepositoryOverviewTable
 
   StreamEventSendToSQS:
     Type: AWS::Serverless::Function

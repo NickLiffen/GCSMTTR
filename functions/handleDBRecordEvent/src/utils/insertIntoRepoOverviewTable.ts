@@ -16,6 +16,7 @@ const config = {
 export const insertCreate = async (
   data: insertCreateResponseFormat
 ): Promise<PutItemCommandInput> => {
+  console.log("within insertCreate", data);
   return {
     TableName: process.env.TABLE_NAME,
     Item: {
@@ -41,6 +42,7 @@ export const insertCreate = async (
 export const modifyCreate = async (
   data: modifyCreateResponseFormat
 ): Promise<PutItemCommandInput> => {
+  console.log("within modifyCreate", data);
   return {
     TableName: process.env.TABLE_NAME,
     Item: {
@@ -78,6 +80,7 @@ export const modifyCreate = async (
 export const insertUpdate = async (
   data: insertUpdateResponseFormat
 ): Promise<UpdateItemCommandInput> => {
+  console.log("within insertUpdate", data);
   return {
     TableName: process.env.TABLE_NAME,
     Key: {
@@ -97,6 +100,7 @@ export const insertUpdate = async (
 export const modifyUpdate = async (
   data: modifyUpdateResponseFormat
 ): Promise<UpdateItemCommandInput> => {
+  console.log("within modifyUpdate", data);
   return {
     TableName: process.env.TABLE_NAME,
     Key: {
@@ -129,15 +133,16 @@ export const modifyUpdate = async (
 export const runupdatequery = async (
   data: Detail
 ): Promise<UpdateItemCommand> => {
-  let input = {} as UpdateItemCommandInput;
-
   try {
-    input = (
-      data.action === "INSERT-UPDATE" ? await insertUpdate(data) : {}
-    ) as UpdateItemCommandInput;
-    input = (
-      data.action === "MODIFY-UPDATE" ? await modifyUpdate(data) : {}
-    ) as UpdateItemCommandInput;
+    let input = {} as UpdateItemCommandInput;
+
+    if (data.action === "INSERT-UPDATE") {
+      input = await insertUpdate(data);
+    }
+
+    if (data.action === "MODIFY-UPDATE") {
+      input = await modifyUpdate(data);
+    }
 
     console.log("input", input);
 
@@ -150,15 +155,16 @@ export const runupdatequery = async (
 };
 
 export const runputquery = async (data: Detail): Promise<PutItemCommand> => {
-  let input = {} as PutItemCommandInput;
-
   try {
-    input = (
-      data.action === "INSERT-CREATE" ? await insertCreate(data) : {}
-    ) as PutItemCommandInput;
-    input = (
-      data.action === "MODIFY-CREATE" ? await modifyCreate(data) : {}
-    ) as PutItemCommandInput;
+    let input = {} as PutItemCommandInput;
+
+    if (data.action === "INSERT-CREATE") {
+      input = await insertCreate(data);
+    }
+
+    if (data.action === "MODIFY-CREATE") {
+      input = await modifyCreate(data);
+    }
 
     console.log("input", input);
 
