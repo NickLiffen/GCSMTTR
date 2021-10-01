@@ -138,7 +138,7 @@ Resources:
           TABLE_NAME: !Ref RepositoryOverviewTable
           EVENT_BUS_NAME: !Ref GSSAREventBus
       Tracing: Active
-      Timeout: 3
+      Timeout: 10
       ReservedConcurrentExecutions: 1
       Policies:
         - AmazonSSMReadOnlyAccess
@@ -263,7 +263,6 @@ Resources:
       ContentBasedDeduplication: false
       DeduplicationScope: messageGroup
       FifoThroughputLimit: perMessageGroupId 
-      DelaySeconds: 15
       FifoQueue: true
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn

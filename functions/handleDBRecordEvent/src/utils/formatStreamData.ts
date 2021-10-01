@@ -15,9 +15,7 @@ export const formatStreamData = async (
     ? dynamodb.repositoryName.S
     : ("" as string);
 
-  const streamEvent = dynamodb.S
-    ? dynamodb.S
-    : ("" as string);
+  const streamEvent = dynamodb.S ? dynamodb.S : ("" as string);
 
   const organisationName = dynamodb.organisationName
     ? dynamodb.organisationName.S

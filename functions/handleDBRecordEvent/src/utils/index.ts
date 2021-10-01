@@ -4,6 +4,7 @@ import { getDynamoRecord } from "./getDynamoRecord";
 import { formatStreamData } from "./formatStreamData";
 import { formatDynamoRecord } from "./formatDynamoRecord";
 import { formatDataToModifyEvent } from "./formatDataToModifyEvent";
+import { runquery } from "./insertIntoRepoOverviewTable";
 
 export {
   eventBridge,
@@ -12,4 +13,5 @@ export {
   formatStreamData,
   formatDynamoRecord,
   formatDataToModifyEvent,
+  runquery,
 };

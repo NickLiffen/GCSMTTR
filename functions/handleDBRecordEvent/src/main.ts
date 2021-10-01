@@ -1,17 +1,17 @@
 import { SQSEvent } from "aws-lambda";
 
 import {
-  eventBridge,
   createDynamoID,
   getDynamoRecord,
   formatStreamData,
   formatDynamoRecord,
   formatDataToModifyEvent,
+  runquery,
 } from "./utils";
 
-export const handler = async (event: SQSEvent): Promise<number> => {
+export const handler = async (event: SQSEvent): Promise<Response> => {
   try {
-    let Detail = {} as response;
+    let Detail = {} as Detail;
 
     const [streamEvent, formattedStream] = await formatStreamData(event);
 
@@ -117,15 +117,13 @@ export const handler = async (event: SQSEvent): Promise<number> => {
       );
     }
 
-    const count = await eventBridge(Detail);
+    await runquery(Detail);
 
-    console.log(`The amount of failed EventBridge Errors: ${count}`);
+    console.log("Data Put/Updated In DynamoDB");
 
-    if (count > 0) throw new Error("EventBridge failed");
-
-    return count;
+    return { statusCode: 200, body: "success" };
   } catch (error) {
     console.log(error);
-    return 0;
+    throw error;
   }
 };
