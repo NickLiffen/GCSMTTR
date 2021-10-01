@@ -138,9 +138,9 @@ export const runupdatequery = async (
 
     if (data.action === "INSERT-UPDATE") {
       input = await insertUpdate(data as insertUpdateResponseFormat);
+    } else {
+      input = await modifyUpdate(data as modifyUpdateResponseFormat);
     }
-
-    input = await modifyUpdate(data as modifyUpdateResponseFormat);
 
     console.log("input", input);
 
@@ -160,14 +160,13 @@ export const runputquery = async (
 
     if (data.action === "INSERT-CREATE") {
       input = await insertCreate(data as insertCreateResponseFormat);
+    } else {
+      input = await modifyCreate(data as modifyCreateResponseFormat);
     }
-
-    input = await modifyCreate(data as modifyCreateResponseFormat);
 
     console.log("input", input);
 
     const command = new PutItemCommand(input);
-
     return command;
   } catch (err) {
     console.log(err);
@@ -182,24 +181,38 @@ export const runquery = async (
     | modifyUpdateResponseFormat
 ): Promise<UpdateItemCommandOutput> => {
   try {
-    let command = {} as UpdateItemCommand | PutItemCommand;
+    let command: UpdateItemCommand | PutItemCommand;
 
-    command = (
-      data.action === "INSERT-CREATE" ? await runputquery(data) : {}
-    ) as PutItemCommand;
-    command = (
-      data.action === "INSERT-UPDATE" ? await runupdatequery(data) : {}
-    ) as UpdateItemCommand;
-    command = (
-      data.action === "MODIFY-CREATE" ? await runputquery(data) : {}
-    ) as PutItemCommand;
-    command = (
-      data.action === "MODIFY-UPDATE" ? await runupdatequery(data) : {}
-    ) as UpdateItemCommand;
+    switch (data.action) {
+      case "INSERT-CREATE":
+        command = (await runputquery(
+          data as insertCreateResponseFormat
+        )) as PutItemCommand;
+        break;
+      case "INSERT-UPDATE":
+        command = (await runupdatequery(
+          data as insertUpdateResponseFormat
+        )) as UpdateItemCommand;
+        break;
+      case "MODIFY-CREATE":
+        command = (await runputquery(
+          data as modifyCreateResponseFormat
+        )) as PutItemCommand;
+        break;
+      case "MODIFY-UPDATE":
+        command = (await runupdatequery(
+          data as modifyUpdateResponseFormat
+        )) as UpdateItemCommand;
+        break;
+      default:
+        throw new Error("Invalid action");
+    }
+
+    console.log("command", command);
 
     const client = new DynamoDBClient(config);
 
-    const output = (await client.send(command)) as
+    const output = (await client.send(command as UpdateItemCommand)) as
       | PutItemCommandOutput
       | UpdateItemCommandOutput;
 
