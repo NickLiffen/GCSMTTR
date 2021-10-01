@@ -131,18 +131,16 @@ export const modifyUpdate = async (
 };
 
 export const runupdatequery = async (
-  data: Detail
+  data: insertUpdateResponseFormat | modifyUpdateResponseFormat
 ): Promise<UpdateItemCommand> => {
   try {
-    let input = {} as UpdateItemCommandInput;
+    let input: UpdateItemCommandInput;
 
     if (data.action === "INSERT-UPDATE") {
-      input = await insertUpdate(data);
+      input = await insertUpdate(data as insertUpdateResponseFormat);
     }
 
-    if (data.action === "MODIFY-UPDATE") {
-      input = await modifyUpdate(data);
-    }
+    input = await modifyUpdate(data as modifyUpdateResponseFormat);
 
     console.log("input", input);
 
@@ -154,17 +152,17 @@ export const runupdatequery = async (
   }
 };
 
-export const runputquery = async (data: Detail): Promise<PutItemCommand> => {
+export const runputquery = async (
+  data: insertCreateResponseFormat | modifyCreateResponseFormat
+): Promise<PutItemCommand> => {
   try {
-    let input = {} as PutItemCommandInput;
+    let input: PutItemCommandInput;
 
     if (data.action === "INSERT-CREATE") {
-      input = await insertCreate(data);
+      input = await insertCreate(data as insertCreateResponseFormat);
     }
 
-    if (data.action === "MODIFY-CREATE") {
-      input = await modifyCreate(data);
-    }
+    input = await modifyCreate(data as modifyCreateResponseFormat);
 
     console.log("input", input);
 
@@ -177,7 +175,11 @@ export const runputquery = async (data: Detail): Promise<PutItemCommand> => {
   }
 };
 export const runquery = async (
-  data: Detail
+  data:
+    | insertCreateResponseFormat
+    | insertUpdateResponseFormat
+    | modifyCreateResponseFormat
+    | modifyUpdateResponseFormat
 ): Promise<UpdateItemCommandOutput> => {
   try {
     let command = {} as UpdateItemCommand | PutItemCommand;
