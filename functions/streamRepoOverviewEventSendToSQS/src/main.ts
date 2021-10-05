@@ -12,7 +12,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
 
     if (ev === "REMOVE" || !ev) return "remove event not supported";
 
-    const organizationName = dynamodb?.NewImage?.organizationName.S as string;
+    const organisationName = dynamodb?.NewImage?.organisationName.S as string;
 
     const eventName = {
       S: ev,
@@ -24,7 +24,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
 
     const input = {
       MessageDeduplicationId: uuidv4(),
-      MessageGroupId: organizationName,
+      MessageGroupId: organisationName,
       QueueUrl: process.env.QUEUE_URL,
       MessageBody: JSON.stringify(merged),
     };

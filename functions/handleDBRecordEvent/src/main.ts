@@ -46,7 +46,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         action: "INSERT-CREATE",
         id: `${dynamoId}`,
         repositoryName: formattedStream.repositoryName,
-        organizationName: formattedStream.organisationName,
+        organisationName: formattedStream.organisationName,
         reportingDate: monthyPeriod,
         openAlerts: "1",
       } as insertCreateResponseFormat;
@@ -83,7 +83,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         action: "MODIFY-CREATE" as string,
         id: `${dynamoId}` as string,
         repositoryName: formattedStream.repositoryName as string,
-        organizationName: formattedStream.organisationName as string,
+        organisationName: formattedStream.organisationName as string,
         reportingDate: monthyPeriod as string,
         openAlerts: "0" as string,
         numberFixed: d.fixedAlerts as string,

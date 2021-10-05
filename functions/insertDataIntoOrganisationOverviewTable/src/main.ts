@@ -45,7 +45,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         statusCode: 200,
         action: "INSERT-CREATE",
         id: `${dynamoId}`,
-        organizationName: formattedStream.organisationName,
+        organisationName: formattedStream.organisationName,
         reportingDate: monthyPeriod,
         openAlerts: "1",
       } as insertCreateResponseFormat;
@@ -81,7 +81,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         statusCode: 200,
         action: "MODIFY-CREATE" as string,
         id: `${dynamoId}` as string,
-        organizationName: formattedStream.organisationName as string,
+        organisationName: formattedStream.organisationName as string,
         reportingDate: monthyPeriod as string,
         openAlerts: "0" as string,
         numberFixed: d.fixedAlerts as string,

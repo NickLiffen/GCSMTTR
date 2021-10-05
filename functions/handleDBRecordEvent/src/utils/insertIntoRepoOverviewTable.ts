@@ -23,8 +23,8 @@ export const insertCreate = async (
       id: {
         S: data.id,
       },
-      organizationName: {
-        S: data.organizationName,
+      organisationName: {
+        S: data.organisationName,
       },
       repositoryName: {
         S: data.repositoryName,
@@ -49,8 +49,8 @@ export const modifyCreate = async (
       id: {
         S: data.id,
       },
-      organizationName: {
-        S: data.organizationName,
+      organisationName: {
+        S: data.organisationName,
       },
       repositoryName: {
         S: data.repositoryName,

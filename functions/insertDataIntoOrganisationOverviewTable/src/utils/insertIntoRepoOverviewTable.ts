@@ -23,11 +23,8 @@ export const insertCreate = async (
       id: {
         S: data.id,
       },
-      organizationName: {
-        S: data.organizationName,
-      },
-      repositoryName: {
-        S: data.repositoryName,
+      organisationName: {
+        S: data.organisationName,
       },
       monthlyPeriod: {
         S: data.reportingDate,
@@ -49,11 +46,8 @@ export const modifyCreate = async (
       id: {
         S: data.id,
       },
-      organizationName: {
-        S: data.organizationName,
-      },
-      repositoryName: {
-        S: data.repositoryName,
+      organisationName: {
+        S: data.organisationName,
       },
       monthlyPeriod: {
         S: data.reportingDate,

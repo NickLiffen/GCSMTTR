@@ -56,7 +56,7 @@ type insertCreateResponseFormat = {
   action: "INSERT-CREATE";
   id: string;
   repositoryName: string;
-  organizationName: string;
+  organisationName: string;
   reportingDate: string;
   openAlerts: string;
 };
@@ -73,7 +73,7 @@ type modifyCreateResponseFormat = {
   action: "MODIFY-CREATE";
   id: string;
   repositoryName: string;
-  organizationName: string;
+  organisationName: string;
   reportingDate: string;
   openAlerts: string;
   numberFixed: string;

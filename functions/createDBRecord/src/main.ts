@@ -9,7 +9,7 @@ export const handler = async (
   console.log(event);
   await delay(1000);
   const {
-    alert, repository, organization ,
+    alert, repository, organization,
   } = event;
 
   const newDate = new Date(alert.created_at) as Date;

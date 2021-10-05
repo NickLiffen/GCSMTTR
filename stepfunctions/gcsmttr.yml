@@ -22,7 +22,7 @@ States:
     Parameters:
       alert.$: "$.alert"
       repository.$: "$.repository"
-      organization.$: "$.organization"
+      organisation.$: "$.organisation"
     TimeoutSeconds: 60
     Retry:
       - ErrorEquals:
@@ -73,7 +73,7 @@ States:
     Parameters:
       alert.$: "$.alert"
       repository.$: "$.repository"
-      organization.$: "$.organization"
+      organisation.$: "$.organisation"
     TimeoutSeconds: 10
     Retry:
       - ErrorEquals:
