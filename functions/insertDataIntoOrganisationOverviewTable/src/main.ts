@@ -16,6 +16,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     const [streamEvent, formattedStream] = await formatStreamData(event);
 
     console.log(`The event coming from the DynamoDB Stream is: ${streamEvent}`);
+    
     console.log(
       `The formatted data coming from the DynamoDB Stream is:`,
       formattedStream
@@ -38,6 +39,37 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
       formattedRecord
     );
 
+
+
+    
+    /* 
+      IF Record does not exisit in the Overview Table,
+        IF Stream === INSERT,
+          IF Record.totalTimeToRemedaite > 0,
+            This must mean that an alert has been remedaited
+          IF Record.totalTimeToRemedaite === 0,
+            This must mean that a new alert has been opened
+        IF Stream === MODIFY,
+          IF difference between old and new image open alerts has increased
+            This must mean that a new alert has been opened
+          IF difference between old and new image open alerts has decreased
+            This must mean that an alert has been remedaited
+      IF Record exists in the Overview Table,
+        IF Stream === INSERT,
+          IF Record.totalTimeToRemedaite > 0,
+            This must mean that an alert has been remedaited
+          IF Record.totalTimeToRemedaite === 0,
+            This must mean that a new alert has been opened
+        IF Stream === MODIFY,
+          IF difference between old and new image open alerts has increased
+            This must mean that a new alert has been opened
+          IF difference between old and new image open alerts has decreased
+            This must mean that an alert has been remedaited
+    */
+
+
+
+    
     if (streamEvent === "INSERT" && !record.Item) {
       console.log("INSERT", "EMPTY RECORD");
 
@@ -56,7 +88,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
       );
     }
 
-    if (streamEvent === "INSERT" && record.Item) {
+    if (streamEvent === "MODIFY" && record.Item) {
       console.log("INSERT", "RECORD");
 
       Detail = {
