@@ -12,6 +12,9 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
 
     const { eventName: ev, dynamodb } = Records[0];
 
+    console.log("dynamodb?.NewImage", dynamodb?.NewImage);
+    console.log("dynamodb?.OldImage", dynamodb?.OldImage);
+
     if (ev === "REMOVE" || !ev) {
       return "remove event not supported";
     }
@@ -40,7 +43,6 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
     };
 
     console.log("input", input);
-    console.log("dynamodb?.NewImage", dynamodb?.NewImage);
 
     const client = new SQSClient({ region: process.env.REGION });
     const command = new SendMessageCommand(input);
