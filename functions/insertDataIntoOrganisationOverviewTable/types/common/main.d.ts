@@ -99,7 +99,7 @@ type Detail =
   | modifyCreateResponseFormat
   | modifyUpdateResponseFormat;
 
-type Response = {
+type AWSResponse = {
   statusCode: number;
   body: string;
 };

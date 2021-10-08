@@ -9,7 +9,7 @@ import {
   runquery,
 } from "./utils";
 
-export const handler = async (event: SQSEvent): Promise<Response> => {
+export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
   try {
     let Detail = {} as Detail;
 
@@ -39,9 +39,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
       formattedRecord
     );
 
-
-
-    
     /* 
       IF Record does not exisit in the Overview Table,
         IF Stream === INSERT,
