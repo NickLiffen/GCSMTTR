@@ -7,6 +7,12 @@ type formatDataToModifyEventResponse = {
 };
 
 type sqsRecord = {
+  NewImage: RepoOverviewData,
+  OldImage?: RepoOverviewData,
+  EventName: string;
+};
+
+type repoOverviewData = {
   alertCreatedAtDate: N;
   organisationName: S;
   alertCreatedAtFullTimestamp: S;
@@ -16,10 +22,9 @@ type sqsRecord = {
   alertURL: S;
   id: S;
   repositoryName: S;
-  S: string;
   alertClosedAtFullTimestamp?: S;
   alertClosedAtReason?: S;
-};
+}
 
 type S = {
   S: string;

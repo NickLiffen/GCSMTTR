@@ -7,33 +7,32 @@ export const formatStreamData = async (
 
   const { body } = Records[0];
 
-  const dynamodb = JSON.parse(body) as sqsRecord;
+  const { NewImage, OldImage, EventName } = JSON.parse(body) as sqsRecord;
 
-  console.log(dynamodb);
+  console.log("NewImage", NewImage);
+  console.log("OldImage", OldImage);
 
-  console.log(`Stream data is: `, dynamodb);
-
-  const repositoryName = dynamodb.repositoryName
-    ? dynamodb.repositoryName.S
+  const repositoryName = NewImage.repositoryName
+    ? NewImage.repositoryName.S
     : ("" as string);
 
-  const streamEvent = dynamodb.S ? dynamodb.S : ("" as string);
-
-  const organisationName = dynamodb.organisationName
-    ? dynamodb.organisationName.S
+  const organisationName = NewImage.organisationName
+    ? NewImage.organisationName.S
     : ("" as string);
 
-  const alertCreatedAtFullTimestamp = dynamodb.alertCreatedAtFullTimestamp
-    ? dynamodb.alertCreatedAtFullTimestamp.S
+  const alertCreatedAtFullTimestamp = NewImage.alertCreatedAtFullTimestamp
+    ? NewImage.alertCreatedAtFullTimestamp.S
     : ("" as string);
 
-  const alertClosedAtFullTimestamp = dynamodb.alertClosedAtFullTimestamp
-    ? dynamodb.alertClosedAtFullTimestamp.S
+  const alertClosedAtFullTimestamp = NewImage.alertClosedAtFullTimestamp
+    ? NewImage.alertClosedAtFullTimestamp.S
     : ("" as string);
 
-  const alertClosedAtReason = dynamodb.alertClosedAtReason
-    ? dynamodb.alertClosedAtReason.S
+  const alertClosedAtReason = NewImage.alertClosedAtReason
+    ? NewImage.alertClosedAtReason.S
     : ("" as string);
+
+  const streamEvent = EventName ? EventName : ("" as string);
 
   const formattedStream = {
     repositoryName,

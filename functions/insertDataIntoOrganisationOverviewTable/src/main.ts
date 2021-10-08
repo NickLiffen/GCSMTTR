@@ -41,7 +41,12 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       formattedRecord
     );
 
-    if (!record) {
+    if (!record.Item) {
+
+      console.log(
+        "No Record Item Found in Overtable table"
+      );
+
       if (streamEvent === "INSERT") {
         console.log(
           "No Record Found in Overtable table - Record INSERTED into Repository Overview Table"
@@ -66,7 +71,12 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       }
     }
 
-    if (record) {
+    if (record.Item) {
+
+      console.log(
+        "Record Item Found in Overtable table"
+      );
+
       if (streamEvent === "INSERT") {
         console.log(
           "Record Found in Overtable table - Record INSERTED into Repository Overview Table"
@@ -82,7 +92,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
         );
 
         console.log(
-          "No Record Found in Overtable table - Record MODIFIED in Repository Overview Table"
+          "Record Found in Overtable table - Record MODIFIED in Repository Overview Table"
         );
 
         console.log("formatedModifiedData", formatedModifiedData);

@@ -20,14 +20,14 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
     }
 
     if (ev === "INSERT") {
-      data = { NewImage: dynamodb?.NewImage, EvetName: ev };
+      data = { NewImage: dynamodb?.NewImage, EventName: ev };
     }
 
     if (ev === "MODIFY") {
       data = {
         NewImage: dynamodb?.NewImage,
         OldImage: dynamodb?.OldImage,
-        EvetName: ev,
+        EventName: ev,
       };
     }
 
