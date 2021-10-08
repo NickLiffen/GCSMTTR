@@ -6,17 +6,19 @@ import {
   formatStreamData,
   formatDynamoRecord,
   formatDataToModifyEvent,
-  runquery,
+  // runquery,
 } from "./utils";
 
 export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
   try {
-    let Detail = {} as Detail;
+    const Detail = {} as Detail;
+
+    console.log(Detail);
 
     const [streamEvent, formattedStream] = await formatStreamData(event);
 
     console.log(`The event coming from the DynamoDB Stream is: ${streamEvent}`);
-    
+
     console.log(
       `The formatted data coming from the DynamoDB Stream is:`,
       formattedStream
@@ -38,6 +40,56 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       `The formatted data from the DynamoDB Record is:`,
       formattedRecord
     );
+
+    if (!record) {
+      if (streamEvent === "INSERT") {
+        console.log(
+          "No Record Found in Overtable table - Record INSERTED into Repository Overview Table"
+        );
+
+        return { statusCode: 200, body: "success" };
+      }
+
+      if (streamEvent === "MODIFY") {
+        const formatedModifiedData = await formatDataToModifyEvent(
+          formattedStream,
+          formattedRecord
+        );
+
+        console.log(
+          "No Record Found in Overtable table - Record MODIFIED in Repository Overview Table"
+        );
+
+        console.log("formatedModifiedData", formatedModifiedData);
+
+        return { statusCode: 200, body: "success" };
+      }
+    }
+
+    if (record) {
+      if (streamEvent === "INSERT") {
+        console.log(
+          "Record Found in Overtable table - Record INSERTED into Repository Overview Table"
+        );
+
+        return { statusCode: 200, body: "success" };
+      }
+
+      if (streamEvent === "MODIFY") {
+        const formatedModifiedData = await formatDataToModifyEvent(
+          formattedStream,
+          formattedRecord
+        );
+
+        console.log(
+          "No Record Found in Overtable table - Record MODIFIED in Repository Overview Table"
+        );
+
+        console.log("formatedModifiedData", formatedModifiedData);
+
+        return { statusCode: 200, body: "success" };
+      }
+    }
 
     /* 
       IF Record does not exisit in the Overview Table,
@@ -64,10 +116,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
             This must mean that an alert has been remedaited
     */
 
-
-
-    
-    if (streamEvent === "INSERT" && !record.Item) {
+    /*if (streamEvent === "INSERT" && !record.Item) {
       console.log("INSERT", "EMPTY RECORD");
 
       Detail = {
@@ -100,8 +149,6 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
         Detail
       );
     }
-
-    const d = await formatDataToModifyEvent(formattedStream, formattedRecord);
 
     if (streamEvent === "MODIFY" && !record.Item) {
       console.log("MODIFY", "EMPTY RECORD");
@@ -144,7 +191,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       );
     }
 
-    await runquery(Detail);
+    await runquery(Detail);*/
 
     console.log("Data Put/Updated In DynamoDB");
 
