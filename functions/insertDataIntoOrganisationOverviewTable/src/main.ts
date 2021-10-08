@@ -53,7 +53,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       formatedModifiedData
     );
 
-    if (e === "NewOpenAlertAdded") {
+    if (e === "NewOpenAlertCreated") {
       console.log(e);
     }
 

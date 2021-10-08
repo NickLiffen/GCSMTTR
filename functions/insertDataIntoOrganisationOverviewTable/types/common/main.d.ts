@@ -13,18 +13,13 @@ type sqsRecord = {
 };
 
 type RepoOverviewData = {
-  alertCreatedAtDate: N;
-  organisationName: S;
-  alertCreatedAtFullTimestamp: S;
-  alertCreatedAtMonth: S;
-  alertCreatedAtYear: N;
-  alertID: N;
-  alertURL: S;
-  id: S;
   repositoryName: S;
-  alertClosedAtFullTimestamp?: S;
-  alertClosedAtReason?: S;
+  organisationName: S;
   openAlerts: N;
+  totalTimeToRemediate?: N;
+  meanTimeToRemediate?: N;
+  numberManuallyCosed?: N;
+  numberFixed?: N;
 };
 
 type S = {
@@ -48,10 +43,16 @@ type parsedRecord = {
 type parsedStream = {
   repositoryName: string;
   organisationName: string;
-  alertCreatedAtFullTimestamp: string;
-  alertClosedAtFullTimestamp: string;
-  alertClosedAtReason: string;
   newOpenAlerts: number;
+  newAlertTotalTimeToRemediate: number;
+  newAlertMeanTimeToRemediate: number;
+  newAlertNumberManuallyCosed: number;
+  newAlertNumberFixed: number;
+  oldOpenAlerts: number;
+  oldAlertTotalTimeToRemediate: number;
+  oldAlertMeanTimeToRemediate: number;
+  oldAlertNumberManuallyCosed: number;
+  oldAlertNumberFixed: number;
 };
 
 type event = "INSERT" | "MODIFY" | "REMOVE" | undefined;
@@ -60,9 +61,22 @@ type e =
   | "ExistingOpenAlertAdded"
   | "ExistingOpenAlertFixed"
   | "ExistingOpenAlertClosed"
-  | "NewOpenAlertAdded"
+  | "NewOpenAlertCreated"
   | "NewOpenAlertFixed"
   | "NewOpenAlertClosed";
+
+type AlertNumberInformation = {
+  newOpenAlerts: string;
+  oldOpenAlerts: string;
+  newAlertTotalTimeToRemediate: string;
+  oldAlertTotalTimeToRemediate: string;
+  newAlertMeanTimeToRemediate: string;
+  oldAlertMeanTimeToRemediate: string;
+  newAlertNumberManuallyCosed: string;
+  oldAlertNumberManuallyCosed: string;
+  newAlertNumberFixed: string;
+  oldAlertNumberFixed: string;
+};
 
 type streamResponse = [event, parsedStream, e];
 

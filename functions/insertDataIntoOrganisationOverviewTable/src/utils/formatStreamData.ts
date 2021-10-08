@@ -18,55 +18,75 @@ export const formatStreamData = async (
 
   const streamEvent: string = EventName ? EventName : "";
 
-  const repositoryName: string = NewImage.repositoryName
-    ? NewImage.repositoryName.S
-    : "";
+  const repositoryName: string =
+    NewImage && NewImage.repositoryName ? NewImage.repositoryName.S : "";
 
-  const organisationName: string = NewImage.organisationName
-    ? NewImage.organisationName.S
-    : ("" as string);
+  const organisationName: string =
+    NewImage && NewImage.organisationName ? NewImage.organisationName.S : "";
 
-  const nOpenAlerts: string = NewImage.openAlerts
-    ? NewImage.openAlerts.N
-    : ("" as string);
-
-  const newOpenAlerts = Number(nOpenAlerts);
+  const newOpenAlerts: number =
+    NewImage && NewImage.openAlerts ? parseInt(NewImage.openAlerts.N) : 0;
 
   /* ---------- */
 
   /* ---- Fixed Vulnrabilities have this data ------ */
 
-  const alertCreatedAtFullTimestamp = NewImage.alertCreatedAtFullTimestamp
-    ? NewImage.alertCreatedAtFullTimestamp.S
-    : ("" as string);
+  const newAlertTotalTimeToRemediate: number =
+    NewImage && NewImage.totalTimeToRemediate
+      ? parseInt(NewImage.totalTimeToRemediate.N)
+      : 0;
 
-  const alertClosedAtFullTimestamp = NewImage.alertClosedAtFullTimestamp
-    ? NewImage.alertClosedAtFullTimestamp.S
-    : ("" as string);
+  const newAlertMeanTimeToRemediate: number =
+    NewImage && NewImage.meanTimeToRemediate
+      ? parseInt(NewImage.meanTimeToRemediate.N)
+      : 0;
 
-  const alertClosedAtReason = NewImage.alertClosedAtReason
-    ? NewImage.alertClosedAtReason.S
-    : ("" as string);
+  const newAlertNumberManuallyCosed: number =
+    NewImage && NewImage.numberManuallyCosed
+      ? parseInt(NewImage.numberManuallyCosed.N)
+      : 0;
+
+  const newAlertNumberFixed: number =
+    NewImage && NewImage.numberFixed ? parseInt(NewImage.numberFixed.N) : 0;
+
+  /* ---------- */
+
+  /* ---- Fixed Vulnrabilities on a Pre-Recorded Alert have this data ------ */
+
+  const oldOpenAlerts: number =
+    OldImage && OldImage.openAlerts ? parseInt(OldImage.openAlerts.N) : 0;
+
+  const oldAlertTotalTimeToRemediate: number =
+    OldImage && OldImage.totalTimeToRemediate
+      ? parseInt(OldImage.totalTimeToRemediate.N)
+      : 0;
+
+  const oldAlertMeanTimeToRemediate: number =
+    OldImage && OldImage.meanTimeToRemediate
+      ? parseInt(OldImage.meanTimeToRemediate.N)
+      : 0;
+
+  const oldAlertNumberManuallyCosed: number =
+    OldImage && OldImage.numberManuallyCosed
+      ? parseInt(OldImage.numberManuallyCosed.N)
+      : 0;
+
+  const oldAlertNumberFixed: number =
+    OldImage && OldImage.numberFixed ? parseInt(OldImage.numberFixed.N) : 0;
 
   /* ---------- */
 
   if (OldImage) {
-    const {
-      openAlerts: { N: oOpenAlerts },
-    } = OldImage;
-
-    const oldOpenAlerts = Number(oOpenAlerts);
-
     if (newOpenAlerts > oldOpenAlerts) {
       e = "ExistingOpenAlertAdded";
     } else if (
       oldOpenAlerts > newOpenAlerts &&
-      alertClosedAtReason === "FIXED"
+      newAlertNumberFixed > oldAlertNumberFixed
     ) {
       e = "ExistingOpenAlertFixed";
     } else if (
       oldOpenAlerts > newOpenAlerts &&
-      alertClosedAtReason === "CLOSED"
+      newAlertNumberManuallyCosed > oldAlertNumberManuallyCosed
     ) {
       e = "ExistingOpenAlertClosed";
     } else {
@@ -75,9 +95,9 @@ export const formatStreamData = async (
   } else {
     if (newOpenAlerts > 0) {
       e = "NewOpenAlertCreated";
-    } else if (alertClosedAtReason && alertClosedAtReason === "FIXED") {
+    } else if (newAlertNumberFixed === 1) {
       e = "NewOpenAlertFixed";
-    } else if (alertClosedAtReason && alertClosedAtReason === "CLOSED") {
+    } else if (newAlertNumberManuallyCosed === 1) {
       e = "NewOpenAlertClosed";
     } else {
       throw new Error("Unhandled event type");
@@ -88,9 +108,15 @@ export const formatStreamData = async (
     repositoryName,
     organisationName,
     newOpenAlerts,
-    alertCreatedAtFullTimestamp,
-    alertClosedAtFullTimestamp,
-    alertClosedAtReason,
+    newAlertTotalTimeToRemediate,
+    newAlertMeanTimeToRemediate,
+    newAlertNumberManuallyCosed,
+    newAlertNumberFixed,
+    oldOpenAlerts,
+    oldAlertTotalTimeToRemediate,
+    oldAlertMeanTimeToRemediate,
+    oldAlertNumberManuallyCosed,
+    oldAlertNumberFixed,
   } as parsedStream;
 
   return [streamEvent, formattedStream, e] as streamResponse;
