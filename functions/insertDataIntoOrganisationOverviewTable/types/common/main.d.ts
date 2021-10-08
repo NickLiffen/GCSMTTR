@@ -7,12 +7,12 @@ type formatDataToModifyEventResponse = {
 };
 
 type sqsRecord = {
-  NewImage: RepoOverviewData,
-  OldImage?: RepoOverviewData,
+  NewImage: RepoOverviewData;
+  OldImage: RepoOverviewData;
   EventName: string;
 };
 
-type repoOverviewData = {
+type RepoOverviewData = {
   alertCreatedAtDate: N;
   organisationName: S;
   alertCreatedAtFullTimestamp: S;
@@ -24,7 +24,8 @@ type repoOverviewData = {
   repositoryName: S;
   alertClosedAtFullTimestamp?: S;
   alertClosedAtReason?: S;
-}
+  openAlerts: N;
+};
 
 type S = {
   S: string;
@@ -50,11 +51,20 @@ type parsedStream = {
   alertCreatedAtFullTimestamp: string;
   alertClosedAtFullTimestamp: string;
   alertClosedAtReason: string;
+  newOpenAlerts: number;
 };
 
 type event = "INSERT" | "MODIFY" | "REMOVE" | undefined;
 
-type streamResponse = [event, parsedStream];
+type e =
+  | "ExistingOpenAlertAdded"
+  | "ExistingOpenAlertFixed"
+  | "ExistingOpenAlertClosed"
+  | "NewOpenAlertAdded"
+  | "NewOpenAlertFixed"
+  | "NewOpenAlertClosed";
+
+type streamResponse = [event, parsedStream, e];
 
 type insertCreateResponseFormat = {
   statusCode: number;

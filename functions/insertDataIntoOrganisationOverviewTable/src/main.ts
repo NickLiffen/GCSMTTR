@@ -15,9 +15,11 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
 
     console.log(Detail);
 
-    const [streamEvent, formattedStream] = await formatStreamData(event);
+    const [streamEvent, formattedStream, e] = await formatStreamData(event);
 
     console.log(`The event coming from the DynamoDB Stream is: ${streamEvent}`);
+
+    console.log(`What happened to the data was: ${e}`);
 
     console.log(
       `The formatted data coming from the DynamoDB Stream is:`,
@@ -41,64 +43,46 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       formattedRecord
     );
 
+    const formatedModifiedData =
+      streamEvent === "MODIFY"
+        ? await formatDataToModifyEvent(formattedStream, formattedRecord)
+        : "";
+
+    console.log(
+      `The formatted data from the modified event is:`,
+      formatedModifiedData
+    );
+
+    if (e === "NewOpenAlertAdded") {
+      console.log(e);
+    }
+
+    if (e === "NewOpenAlertClosed") {
+      console.log(e);
+    }
+
+    if (e === "NewOpenAlertFixed") {
+      console.log(e);
+    }
+
+    if (e === "ExistingOpenAlertAdded") {
+      console.log(e);
+    }
+
+    if (e === "ExistingOpenAlertClosed") {
+      console.log(e);
+    }
+
+    if (e === "ExistingOpenAlertFixed") {
+      console.log(e);
+    }
+
     if (!record.Item) {
-
-      console.log(
-        "No Record Item Found in Overtable table"
-      );
-
-      if (streamEvent === "INSERT") {
-        console.log(
-          "No Record Found in Overtable table - Record INSERTED into Repository Overview Table"
-        );
-
-        return { statusCode: 200, body: "success" };
-      }
-
-      if (streamEvent === "MODIFY") {
-        const formatedModifiedData = await formatDataToModifyEvent(
-          formattedStream,
-          formattedRecord
-        );
-
-        console.log(
-          "No Record Found in Overtable table - Record MODIFIED in Repository Overview Table"
-        );
-
-        console.log("formatedModifiedData", formatedModifiedData);
-
-        return { statusCode: 200, body: "success" };
-      }
+      console.log("No Record Item Found in Overtable table");
     }
 
     if (record.Item) {
-
-      console.log(
-        "Record Item Found in Overtable table"
-      );
-
-      if (streamEvent === "INSERT") {
-        console.log(
-          "Record Found in Overtable table - Record INSERTED into Repository Overview Table"
-        );
-
-        return { statusCode: 200, body: "success" };
-      }
-
-      if (streamEvent === "MODIFY") {
-        const formatedModifiedData = await formatDataToModifyEvent(
-          formattedStream,
-          formattedRecord
-        );
-
-        console.log(
-          "Record Found in Overtable table - Record MODIFIED in Repository Overview Table"
-        );
-
-        console.log("formatedModifiedData", formatedModifiedData);
-
-        return { statusCode: 200, body: "success" };
-      }
+      console.log("Record Item Found in Overtable table");
     }
 
     /* 
