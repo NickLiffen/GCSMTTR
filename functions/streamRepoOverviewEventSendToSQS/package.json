@@ -15,10 +15,10 @@
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",
     "@types/aws-lambda": "^8.10.82",
-    "@types/delay": "^3.1.0",
     "@types/ip": "^1.1.0",
     "@types/json-schema": "^7.0.9",
     "@types/node": "^16.6.1",
+    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "eslint": "^7.32.0",
@@ -39,8 +39,10 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.33.0",
     "@aws-sdk/client-eventbridge": "^3.33.0",
+    "@aws-sdk/client-sqs": "^3.34.0",
     "@aws-sdk/client-ssm": "^3.26.0",
     "date-fns": "^2.24.0",
-    "delay": "^5.0.0"
+    "delay": "^5.0.0",
+    "uuid": "^8.3.2"
   }
 }

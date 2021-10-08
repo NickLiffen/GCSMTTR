@@ -127,12 +127,10 @@ Resources:
       Description: "A Lambda Function triggers from a DynamoDB Stream. Purpose is to build the data for the overview table"
       Events:
         UserEvent:
-          Type: DynamoDB
+          Type: SQS
           Properties:
-            StartingPosition: LATEST
             BatchSize: 1
-            Stream: !GetAtt AllDataTable.StreamArn
-            MaximumRetryAttempts: 1
+            Queue: !GetAtt GSSAREventQueue.Arn
       Environment: 
         Variables: 
           NODE_ENV: Production
@@ -140,13 +138,99 @@ Resources:
           TABLE_NAME: !Ref RepositoryOverviewTable
           EVENT_BUS_NAME: !Ref GSSAREventBus
       Tracing: Active
-      Timeout: 60
+      Timeout: 10
+      ReservedConcurrentExecutions: 1
       Policies:
         - AmazonSSMReadOnlyAccess
         - EventBridgePutEventsPolicy:
             EventBusName: !Ref GSSAREventBus
         - DynamoDBReadPolicy:
             TableName: !Ref RepositoryOverviewTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref RepositoryOverviewTable
+
+  InsertDataIntoOrganisationOverviewTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/insertDataIntoOrganisationOverviewTable
+      Handler: lib/main.handler
+      Runtime: nodejs14.x
+      Description: "A Lambda Function triggers from a DynamoDB Stream. Purpose is to build the data for the overview table"
+      Events:
+        UserEvent:
+          Type: SQS
+          Properties:
+            BatchSize: 1
+            Queue: !GetAtt RepositoryOverviewEventQueue.Arn
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+          TABLE_NAME: !Ref OrganisationOverviewTable
+          EVENT_BUS_NAME: !Ref GSSAREventBus
+      Tracing: Active
+      Timeout: 10
+      ReservedConcurrentExecutions: 1
+      Policies:
+        - AmazonSSMReadOnlyAccess
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref GSSAREventBus
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganisationOverviewTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref OrganisationOverviewTable
+
+  StreamEventSendToSQS:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/allTableStreamEventHandler
+      Handler: lib/main.handler
+      Runtime: nodejs14.x
+      Description: "A Lambda Function triggers from a DynamoDB Stream. Purpose is to send to an SQS"
+      Events:
+        UserEvent:
+          Type: DynamoDB
+          Properties:
+            StartingPosition: LATEST
+            BatchSize: 1
+            Stream: !GetAtt AllDataTable.StreamArn
+            MaximumRetryAttempts: 3
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+          QUEUE_URL: !Ref GSSAREventQueue
+      Tracing: Active
+      Timeout: 3
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt GSSAREventQueue.QueueName
+
+  StreamRepoOverviewEventSendToSQS:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/streamRepoOverviewEventSendToSQS
+      Handler: lib/main.handler
+      Runtime: nodejs14.x
+      Description: "A Lambda Function triggers from a DynamoDB Stream. Purpose is to send to an SQS"
+      Events:
+        UserEvent:
+          Type: DynamoDB
+          Properties:
+            StartingPosition: LATEST
+            BatchSize: 1
+            Stream: !GetAtt RepositoryOverviewTable.StreamArn
+            MaximumRetryAttempts: 3
+      Environment: 
+        Variables: 
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+          QUEUE_URL: !Ref RepositoryOverviewEventQueue
+      Tracing: Active
+      Timeout: 3
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt RepositoryOverviewEventQueue.QueueName
 
   ### Event Bus ###
 
@@ -230,6 +314,40 @@ Resources:
       Roles: 
         - Ref: "LambdaInvokeRole"
 
+  ### SQS Queues ### 
+
+  GSSAREventQueue:
+    Type: AWS::SQS::Queue
+    Properties: 
+      ContentBasedDeduplication: false
+      DeduplicationScope: messageGroup
+      FifoThroughputLimit: perMessageGroupId 
+      FifoQueue: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
+        maxReceiveCount: 16
+
+  MyDeadLetterQueue: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      FifoQueue: true
+
+  RepositoryOverviewEventQueue:
+    Type: AWS::SQS::Queue
+    Properties: 
+      ContentBasedDeduplication: false
+      DeduplicationScope: messageGroup
+      FifoThroughputLimit: perMessageGroupId 
+      FifoQueue: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt RepositoryOverviewDeadLetterQueue.Arn
+        maxReceiveCount: 16
+
+  RepositoryOverviewDeadLetterQueue: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      FifoQueue: true
+
   ### State Machines (Step Functions) ### 
 
   GCSMTTRStateMachine:
@@ -271,72 +389,6 @@ Resources:
             FunctionName: !Ref UpdateDBRecord
         - DynamoDBWritePolicy:
             TableName: !Ref AllDataTable
-        - CloudWatchLogsFullAccess
-
-  RepoOverviewStateMachine:
-    Type: AWS::Serverless::StateMachine
-    Properties:
-      DefinitionUri: stepfunctions/repoDynamoDBOverview.yml
-      DefinitionSubstitutions:
-        RepoDataTable: !Ref RepositoryOverviewTable
-      Type: EXPRESS
-      Events:
-        EBRule:
-          Type: EventBridgeRule
-          Properties:
-            EventBusName: !Ref GSSAREventBus
-            RetryPolicy:
-              MaximumRetryAttempts: 2
-            DeadLetterConfig:
-              Type: SQS
-              QueueLogicalId: gcsmttrDeadLetterQueue
-            Pattern:
-              source:
-                - custom.kickOffRepoOverviewStateMachine
-              detail-type:
-                - transaction         
-      Logging:
-        Destinations:
-          - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt RepoOverviewStateMachineLogGroup.Arn
-        IncludeExecutionData: true
-        Level: ALL
-      Policies:
-        - DynamoDBWritePolicy:
-            TableName: !Ref RepositoryOverviewTable
-        - CloudWatchLogsFullAccess
-
-  OrgOverviewStateMachine:
-    Type: AWS::Serverless::StateMachine
-    Properties:
-      DefinitionUri: stepfunctions/orgDynamoDBOverview.yml
-      DefinitionSubstitutions:
-        RepoDataTable: !Ref OrganisationOverviewTable
-      Type: EXPRESS
-      Events:
-        EBRule:
-          Type: EventBridgeRule
-          Properties:
-            EventBusName: !Ref GSSAREventBus
-            RetryPolicy:
-              MaximumRetryAttempts: 2
-            DeadLetterConfig:
-              Type: SQS
-              QueueLogicalId: gcsmttrDeadLetterQueue
-            Pattern:
-              source:
-                - custom.kickOffOrgOverviewStateMachine
-              detail-type:
-                - transaction         
-      Logging:
-        Destinations:
-          - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt OrgOverviewStateMachineLogGroup.Arn
-        IncludeExecutionData: true
-        Level: ALL
-      Policies:
-        - DynamoDBWritePolicy:
-            TableName: !Ref OrganisationOverviewTable
         - CloudWatchLogsFullAccess
 
     ###### DynamoDB Table ######
@@ -479,6 +531,8 @@ Resources:
         PointInTimeRecoveryEnabled: true
       SSESpecification:
         SSEEnabled: true
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits

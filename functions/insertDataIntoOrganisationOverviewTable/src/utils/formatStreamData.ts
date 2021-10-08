@@ -9,6 +9,8 @@ export const formatStreamData = async (
 
   const dynamodb = JSON.parse(body) as sqsRecord;
 
+  console.log(dynamodb);
+
   console.log(`Stream data is: `, dynamodb);
 
   const repositoryName = dynamodb.repositoryName

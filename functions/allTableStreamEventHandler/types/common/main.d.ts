@@ -6,29 +6,6 @@ type formatDataToModifyEventResponse = {
   openAlerts: string;
 };
 
-type sqsRecord = {
-  alertCreatedAtDate: N;
-  organisationName: S;
-  alertCreatedAtFullTimestamp: S;
-  alertCreatedAtMonth: S;
-  alertCreatedAtYear: N;
-  alertID: N;
-  alertURL: S;
-  id: S;
-  repositoryName: S;
-  S: string;
-  alertClosedAtFullTimestamp?: S;
-  alertClosedAtReason?: S;
-};
-
-type S = {
-  S: string;
-};
-
-type N = {
-  N: string;
-};
-
 type dynamoDBReponse = [string, string];
 
 type parsedRecord = {
@@ -93,13 +70,8 @@ type modifyUpdateResponseFormat = {
   meanTimeToRemediate: string;
 };
 
-type Detail =
+type response =
   | insertCreateResponseFormat
   | insertUpdateResponseFormat
   | modifyCreateResponseFormat
   | modifyUpdateResponseFormat;
-
-type Response = {
-  statusCode: number;
-  body: string;
-};
