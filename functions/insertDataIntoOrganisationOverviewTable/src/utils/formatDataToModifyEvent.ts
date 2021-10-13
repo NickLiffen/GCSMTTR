@@ -4,6 +4,7 @@ export const formatDataToModifyEvent = async (
   formattedStream: parsedStream,
   formattedRecord: parsedRecord
 ): Promise<formatDataToModifyEventResponse> => {
+  
   let fixedAlerts = formattedRecord.fixedAlerts;
   let closedAlerts = formattedRecord.closedAlerts;
   let totalTimeToRemediate = formattedRecord.totalTimeToRemediate;

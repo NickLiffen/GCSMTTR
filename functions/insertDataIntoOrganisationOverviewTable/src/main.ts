@@ -44,7 +44,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
     );
 
     const formatedModifiedData =
-      streamEvent === "MODIFY"
+      (formattedStream.newAlertTotalTimeToRemediate)
         ? await formatDataToModifyEvent(formattedStream, formattedRecord)
         : "";
 

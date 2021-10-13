@@ -119,5 +119,7 @@ export const formatStreamData = async (
     oldAlertNumberFixed,
   } as parsedStream;
 
+  console.log("formattedStream", formattedStream);
+
   return [streamEvent, formattedStream, e] as streamResponse;
 };
