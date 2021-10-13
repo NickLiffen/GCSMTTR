@@ -6,12 +6,12 @@ import {
   formatStreamData,
   formatDynamoRecord,
   formatDataToModifyEvent,
-  // runquery,
+  runquery,
 } from "./utils";
 
 export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
   try {
-    const Detail = {} as Detail;
+    let Detail = {} as Detail;
 
     console.log(Detail);
 
@@ -43,18 +43,33 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       formattedRecord
     );
 
-    const formatedModifiedData =
-      (formattedStream.newAlertTotalTimeToRemediate)
-        ? await formatDataToModifyEvent(formattedStream, formattedRecord)
-        : "";
+    const formatedModifiedData = formattedStream.newAlertTotalTimeToRemediate
+      ? await formatDataToModifyEvent(formattedStream, formattedRecord, e)
+      : "";
 
     console.log(
       `The formatted data from the modified event is:`,
       formatedModifiedData
     );
 
-    if (e === "NewOpenAlertCreated") {
-      console.log(e);
+    if (e === "NewOpenAlertCreated" && !record.Item) {
+      Detail = {
+        statusCode: 200,
+        action: "INSERT-CREATE",
+        id: `${dynamoId}`,
+        organisationName: formattedStream.organisationName,
+        reportingDate: monthyPeriod,
+        openAlerts: "1",
+      } as insertCreateResponseFormat;
+    }
+
+    if (e === "NewOpenAlertCreated" && record.Item) {
+      Detail = {
+        statusCode: 200,
+        action: "INSERT-UPDATE",
+        id: `${dynamoId}`,
+        openAlerts: (formattedRecord.openAlerts + 1).toString() as string,
+      } as insertUpdateResponseFormat;
     }
 
     if (e === "NewOpenAlertClosed") {
@@ -184,8 +199,9 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
         Detail
       );
     }
+    */
 
-    await runquery(Detail);*/
+    await runquery(Detail);
 
     console.log("Data Put/Updated In DynamoDB");
 

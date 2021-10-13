@@ -1,40 +1,40 @@
-import { differenceInMilliseconds } from "date-fns";
-
 export const formatDataToModifyEvent = async (
   formattedStream: parsedStream,
-  formattedRecord: parsedRecord
+  formattedRecord: parsedRecord,
+  e: e
 ): Promise<formatDataToModifyEventResponse> => {
-  
   let fixedAlerts = formattedRecord.fixedAlerts;
   let closedAlerts = formattedRecord.closedAlerts;
   let totalTimeToRemediate = formattedRecord.totalTimeToRemediate;
   let meanTimeToRemediate = formattedRecord.meanTimeToRemediate;
   let openAlerts = formattedRecord.openAlerts;
 
-  if (formattedStream.alertClosedAtReason === "FIXED") {
+  if (e === "NewOpenAlertFixed" || e === "ExistingOpenAlertFixed") {
     fixedAlerts = formattedRecord.fixedAlerts + 1;
+    openAlerts = openAlerts - 1;
   }
 
-  if (formattedStream.alertClosedAtReason === "CLOSED") {
+  if (e === "NewOpenAlertClosed" || e === "ExistingOpenAlertClosed") {
     closedAlerts = formattedRecord.closedAlerts + 1;
+    openAlerts = openAlerts - 1;
   }
 
-  const createdAtTimestamp = formattedStream.alertCreatedAtFullTimestamp
-    ? new Date(formattedStream.alertCreatedAtFullTimestamp)
-    : new Date();
+  if (e === "NewOpenAlertCreated" || e === "ExistingOpenAlertAdded") {
+    openAlerts = openAlerts + 1;
+  }
 
-  const closedAtTimestamp = formattedStream.alertClosedAtFullTimestamp
-    ? new Date(formattedStream.alertClosedAtFullTimestamp)
-    : new Date();
+  const oldAlertTotalTimeToRemediate =
+    formattedStream.oldAlertTotalTimeToRemediate
+      ? formattedStream.oldAlertTotalTimeToRemediate
+      : 0;
 
-  const milliseconds = differenceInMilliseconds(
-    closedAtTimestamp,
-    createdAtTimestamp
-  );
+  const difference =
+    formattedStream.newAlertTotalTimeToRemediate - oldAlertTotalTimeToRemediate;
 
-  totalTimeToRemediate = totalTimeToRemediate + milliseconds;
+  console.log("difference", difference);
+
+  totalTimeToRemediate = totalTimeToRemediate + difference;
   meanTimeToRemediate = totalTimeToRemediate / (fixedAlerts + closedAlerts);
-  openAlerts = openAlerts - 1;
 
   return {
     fixedAlerts: fixedAlerts.toString(),
