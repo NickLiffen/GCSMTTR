@@ -52,7 +52,10 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       formatedModifiedData
     );
 
-    if (e === "NewOpenAlertCreated" && !record.Item) {
+    if (
+      (e === "ExistingOpenAlertAdded" || e === "NewOpenAlertCreated") &&
+      !record.Item
+    ) {
       Detail = {
         statusCode: 200,
         action: "INSERT-CREATE",
@@ -75,19 +78,35 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       } as insertUpdateResponseFormat;
     }
 
-    if (e === "NewOpenAlertClosed") {
-      console.log(e);
+    if (
+      (e === "ExistingOpenAlertClosed" ||
+        e === "ExistingOpenAlertFixed" ||
+        e === "NewOpenAlertClosed" ||
+        e === "NewOpenAlertFixed") &&
+      !record.Item
+    ) {
+      Detail = {
+        statusCode: 200,
+        action: "MODIFY-CREATE",
+        id: `${dynamoId}`,
+        organisationName: formattedStream.organisationName,
+        reportingDate: monthyPeriod,
+        openAlerts: formatedModifiedData.openAlerts as string,
+        numberFixed: formatedModifiedData.fixedAlerts as string,
+        numberManuallyCosed: formatedModifiedData.closedAlerts as string,
+        totalTimeToRemediate:
+          formatedModifiedData.totalTimeToRemediate as string,
+        meanTimeToRemediate: formatedModifiedData.meanTimeToRemediate as string,
+      } as modifyCreateResponseFormat;
     }
 
-    if (e === "NewOpenAlertFixed") {
-      console.log(e);
-    }
-
-    if (e === "ExistingOpenAlertAdded") {
-      console.log(e);
-    }
-
-    if (e === "ExistingOpenAlertClosed" || e === "ExistingOpenAlertFixed") {
+    if (
+      (e === "ExistingOpenAlertClosed" ||
+        e === "ExistingOpenAlertFixed" ||
+        e === "NewOpenAlertClosed" ||
+        e === "NewOpenAlertFixed") &&
+      record.Item
+    ) {
       Detail = {
         statusCode: 200,
         action: "MODIFY-UPDATE",
@@ -100,115 +119,6 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
         meanTimeToRemediate: formatedModifiedData.meanTimeToRemediate as string,
       } as modifyUpdateResponseFormat;
     }
-
-    if (!record.Item) {
-      console.log("No Record Item Found in Overtable table");
-    }
-
-    if (record.Item) {
-      console.log("Record Item Found in Overtable table");
-    }
-
-    /* 
-      IF Record does not exisit in the Overview Table,
-        IF Stream === INSERT,
-          IF Record.totalTimeToRemedaite > 0,
-            This must mean that an alert has been remedaited
-          IF Record.totalTimeToRemedaite === 0,
-            This must mean that a new alert has been opened
-        IF Stream === MODIFY,
-          IF difference between old and new image open alerts has increased
-            This must mean that a new alert has been opened
-          IF difference between old and new image open alerts has decreased
-            This must mean that an alert has been remedaited
-      IF Record exists in the Overview Table,
-        IF Stream === INSERT,
-          IF Record.totalTimeToRemedaite > 0,
-            This must mean that an alert has been remedaited
-          IF Record.totalTimeToRemedaite === 0,
-            This must mean that a new alert has been opened
-        IF Stream === MODIFY,
-          IF difference between old and new image open alerts has increased
-            This must mean that a new alert has been opened
-          IF difference between old and new image open alerts has decreased
-            This must mean that an alert hpwdas been remedaited
-    */
-
-    /*if (streamEvent === "INSERT" && !record.Item) {
-      console.log("INSERT", "EMPTY RECORD");
-
-      Detail = {
-        statusCode: 200,
-        action: "INSERT-CREATE",
-        id: `${dynamoId}`,
-        organisationName: formattedStream.organisationName,
-        reportingDate: monthyPeriod,
-        openAlerts: "1",
-      } as insertCreateResponseFormat;
-
-      console.log(
-        `The following Deail object has been built within the INSERT-CREATE IF:`,
-        Detail
-      );
-    }
-
-    if (streamEvent === "MODIFY" && record.Item) {
-      console.log("INSERT", "RECORD");
-
-      Detail = {
-        statusCode: 200,
-        action: "INSERT-UPDATE",
-        id: `${dynamoId}`,
-        openAlerts: (formattedRecord.openAlerts + 1).toString() as string,
-      } as insertUpdateResponseFormat;
-
-      console.log(
-        `The following Deail object has been built within the INSERT-RECORD IF: `,
-        Detail
-      );
-    }
-
-    if (streamEvent === "MODIFY" && !record.Item) {
-      console.log("MODIFY", "EMPTY RECORD");
-
-      Detail = {
-        statusCode: 200,
-        action: "MODIFY-CREATE" as string,
-        id: `${dynamoId}` as string,
-        organisationName: formattedStream.organisationName as string,
-        reportingDate: monthyPeriod as string,
-        openAlerts: "0" as string,
-        numberFixed: d.fixedAlerts as string,
-        numberManuallyCosed: d.closedAlerts as string,
-        totalTimeToRemediate: d.totalTimeToRemediate as string,
-        meanTimeToRemediate: d.meanTimeToRemediate as string,
-      } as modifyCreateResponseFormat;
-
-      console.log(
-        `The following Deail object has been built within the MODIFT-CREATE IF: `,
-        Detail
-      );
-    }
-
-    if (streamEvent === "MODIFY" && record.Item) {
-      console.log("MODIFY", "RECORD");
-
-      Detail = {
-        statusCode: 200,
-        action: "MODIFY-UPDATE",
-        id: `${dynamoId}`,
-        openAlerts: d.openAlerts as string,
-        numberFixed: d.fixedAlerts as string,
-        numberManuallyCosed: d.closedAlerts as string,
-        totalTimeToRemediate: d.totalTimeToRemediate as string,
-        meanTimeToRemediate: d.meanTimeToRemediate as string,
-      } as modifyUpdateResponseFormat;
-      console.log(
-        `The following Deail object has been built within the MODIFT-UPDATE IF: `,
-        Detail
-      );
-    }
-    */
 
     await runquery(Detail);
 
