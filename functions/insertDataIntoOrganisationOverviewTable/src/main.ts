@@ -45,7 +45,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
 
     const formatedModifiedData = formattedStream.newAlertTotalTimeToRemediate
       ? await formatDataToModifyEvent(formattedStream, formattedRecord, e)
-      : "";
+      : ({} as formatDataToModifyEventResponse);
 
     console.log(
       `The formatted data from the modified event is:`,
@@ -84,12 +84,18 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       console.log(e);
     }
 
-    if (e === "ExistingOpenAlertClosed") {
-      console.log(e);
-    }
-
-    if (e === "ExistingOpenAlertFixed") {
-      console.log(e);
+    if (e === "ExistingOpenAlertClosed" || e === "ExistingOpenAlertFixed") {
+      Detail = {
+        statusCode: 200,
+        action: "MODIFY-UPDATE",
+        id: `${dynamoId}`,
+        openAlerts: formatedModifiedData.openAlerts as string,
+        numberFixed: formatedModifiedData.fixedAlerts as string,
+        numberManuallyCosed: formatedModifiedData.closedAlerts as string,
+        totalTimeToRemediate:
+          formatedModifiedData.totalTimeToRemediate as string,
+        meanTimeToRemediate: formatedModifiedData.meanTimeToRemediate as string,
+      } as modifyUpdateResponseFormat;
     }
 
     if (!record.Item) {
@@ -122,7 +128,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
           IF difference between old and new image open alerts has increased
             This must mean that a new alert has been opened
           IF difference between old and new image open alerts has decreased
-            This must mean that an alert has been remedaited
+            This must mean that an alert hpwdas been remedaited
     */
 
     /*if (streamEvent === "INSERT" && !record.Item) {
