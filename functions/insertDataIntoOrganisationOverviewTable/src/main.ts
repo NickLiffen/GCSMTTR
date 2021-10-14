@@ -63,7 +63,7 @@ export const handler = async (event: SQSEvent): Promise<AWSResponse> => {
       } as insertCreateResponseFormat;
     }
 
-    if (e === "NewOpenAlertCreated" && record.Item) {
+    if (e === "ExistingOpenAlertAdded" && record.Item) {
       Detail = {
         statusCode: 200,
         action: "INSERT-UPDATE",
