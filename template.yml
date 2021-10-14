@@ -255,7 +255,7 @@ Resources:
       FailOnWarnings: True
       RouteSettings:
         "POST /github/alert":
-          ThrottlingBurstLimit: 10
+          ThrottlingBurstLimit: 5000
       Auth: 
         Authorizers: 
           LambdaAuthorizer: 
