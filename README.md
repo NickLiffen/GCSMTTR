@@ -1,7 +1,8 @@
 # GCSMTTR
 
 **TLDR**: A solution to help teams measure and track MTTR with GitHub Code Scanning.
-## Overview 
+
+## Overview
 
 Check back soon!
 

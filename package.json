@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/NickLiffen/GCSMTTR#readme",
   "devDependencies": {
-    "husky": "^7.0.0"
+    "husky": "^7.0.0",
+    "prettier": "latest"
   }
 }

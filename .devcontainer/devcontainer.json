@@ -1,51 +1,51 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.202.3/containers/typescript-node
 {
-	"name": "Node.js & TypeScript",
-	"runArgs": ["--init"],
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": { 
-			"VARIANT": "14"
-		}
-	},
+  "name": "Node.js & TypeScript",
+  "runArgs": ["--init"],
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "14"
+    }
+  },
 
-	// Set *default* container specific settings.json values on container create.
-	"settings": {},
+  // Set *default* container specific settings.json values on container create.
+  "settings": {},
 
-	"extensions": [
-		"dbaeumer.vscode-eslint",
-		"amazonwebservices.aws-toolkit-vscode",
-		"hookyqr.beautify",
-		"kddejong.vscode-cfn-lint",
-		"github.vscode-codeql",
-		"naumovs.color-highlight",
-		"redhat.vscode-yaml",
-		"vscode-icons-team.vscode-icons",
-		"wayou.vscode-todo-highlight",
-		"esbenp.prettier-vscode",
-		"ms-vscode.vscode-typescript-next",
-		"xabikos.javascriptsnippets",
-		"graphql.vscode-graphql",
-		"github.copilot",
-		"donjayamanne.githistory",
-		"dsznajder.es7-react-js-snippets",
-		"nixon.env-cmd-file-syntax",
-		"ms-azuretools.vscode-docker",
-		"yzhang.markdown-all-in-one"
-	],
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "amazonwebservices.aws-toolkit-vscode",
+    "hookyqr.beautify",
+    "kddejong.vscode-cfn-lint",
+    "github.vscode-codeql",
+    "naumovs.color-highlight",
+    "redhat.vscode-yaml",
+    "vscode-icons-team.vscode-icons",
+    "wayou.vscode-todo-highlight",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "xabikos.javascriptsnippets",
+    "graphql.vscode-graphql",
+    "github.copilot",
+    "donjayamanne.githistory",
+    "dsznajder.es7-react-js-snippets",
+    "nixon.env-cmd-file-syntax",
+    "ms-azuretools.vscode-docker",
+    "yzhang.markdown-all-in-one"
+  ],
 
-	"forwardPorts": [ 4000 ],
+  "forwardPorts": [4000],
 
-	"postCreateCommand": "brew install cfn-lint && npm install && ./setup.sh",
+  "postCreateCommand": "brew install cfn-lint && npm install && ./setup.sh",
 
-	"remoteUser": "node",
-	"features": {
-		"docker-in-docker": "latest",
-		"docker-from-docker": "latest",
-		"git": "latest",
-		"github-cli": "latest",
-		"homebrew": "latest",
-		"python": "latest"
-	}
+  "remoteUser": "node",
+  "features": {
+    "docker-in-docker": "latest",
+    "docker-from-docker": "latest",
+    "git": "latest",
+    "github-cli": "latest",
+    "homebrew": "latest",
+    "python": "latest"
+  }
 }
