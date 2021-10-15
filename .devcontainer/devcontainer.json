@@ -37,7 +37,7 @@
 
   "forwardPorts": [4000],
 
-  "postCreateCommand": "brew install cfn-lint && npm install && ./setup.sh",
+  "postCreateCommand": "brew install cfn-lint && npm install && npm run codespace-setup",
 
   "remoteUser": "node",
   "features": {

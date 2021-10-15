@@ -4,10 +4,10 @@ const findIP = (keys: string[], ipToCheck: string) => {
   const even = (e: string) => {
     return cidrSubnet(e).contains(ipToCheck);
   };
-  const values = (a: any) => {
-    return a.some(even);
+  const values = (a: string[]) => {
+    return a.some(even) as boolean;
   };
-  return keys.some(values);
+  return keys.some(values as unknown as (a: string) => boolean);
 };
 
 export const checkIPs = async (

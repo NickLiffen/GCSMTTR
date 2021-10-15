@@ -5,9 +5,11 @@
   "main": "main.js",
   "scripts": {
     "prepare": "husky install",
-    "format": "npx prettier --write '**/*.{ts,json,md}'",
+    "prettier-write": "npx prettier --write '**/*.{ts,json,md}'",
     "prettier-check": "npx prettier --check '**/*.{ts,json,md}'",
-    "codespace": "./setup.sh"
+    "lint": "npx eslint '**/*.{ts,json}'",
+    "lint-fix": "npx eslint --fix '**/*.{ts,json}'",
+    "codespace-setup": ".devcontainer/setup.sh"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,17 @@
   "homepage": "https://github.com/NickLiffen/GCSMTTR#readme",
   "devDependencies": {
     "husky": "^7.0.0",
-    "prettier": "latest"
+    "@tsconfig/node14": "^1.0.1",
+    "@types/json-schema": "^7.0.9",
+    "@types/node": "^16.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.2",
+    "ts-node": "^10.2.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.3.5"
   }
 }

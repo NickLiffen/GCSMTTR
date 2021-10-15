@@ -39,7 +39,7 @@ export const handler = async (
       body: "Success! Message sent to Step Functions State Machine",
     };
   } catch (e: any) {
-    const body = e.message || "";
+    const body: string = e.body || "";
     console.error(e);
     return { statusCode: 401, body };
   }
