@@ -46,37 +46,37 @@ jobs:
           npm run build
       - name: Install and Build Function (CreateDBRecord)
         run: |
-          cd ./functions/createDBRecord
+          cd ./functions/helpers/createDBRecord
           npm cache clean --force
           npm install
           npm run build
       - name: Install and Build Function (UpdateDBRecord)
         run: |
-          cd ./functions/updateDBRecord
+          cd ./functions/helpers/updateDBRecord
           npm cache clean --force
           npm install
           npm run build
       - name: Install and Build Function (HandleDBRecordEvent)
         run: |
-          cd ./functions/handleDBRecordEvent
+          cd ./functions/helpers/handleDBRecordEvent
           npm cache clean --force
           npm install
           npm run build
       - name: Install and Build Function (AllTableStreamEventHandler)
         run: |
-          cd ./functions/allTableStreamEventHandler
+          cd ./functions/helpers/allTableStreamEventHandler
           npm cache clean --force
           npm install
           npm run build
       - name: Install and Build Function (streamRepoOverviewEventSendToSQS)
         run: |
-          cd ./functions/streamRepoOverviewEventSendToSQS
+          cd ./functions/helpers/streamRepoOverviewEventSendToSQS
           npm cache clean --force
           npm install
           npm run build
       - name: Install and Build Function (insertDataIntoOrganisationOverviewTable)
         run: |
-          cd ./functions/insertDataIntoOrganisationOverviewTable
+          cd ./functions/helpers/insertDataIntoOrganisationOverviewTable
           npm cache clean --force
           npm install
           npm run build
