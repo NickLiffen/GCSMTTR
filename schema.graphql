@@ -1,0 +1,82 @@
+type Alert @aws_api_key {
+  id: ID
+  alertClosedAtDate: String
+  alertClosedAtFullTimestamp: String
+  alertClosedAtMonth: String
+  alertClosedAtReason: AccountType
+  alertClosedAtYear: String
+  alertCreatedAtDate: String
+  alertCreatedAtFullTimestamp: String
+  alertCreatedAtMonth: String
+  alertCreatedAtYear: String
+  alertID: String
+  alertURL: String
+  organisationName: String
+  repositoryName: String
+}
+
+type PaginatedAlerts @aws_api_key {
+  alerts: [Alert!]!
+  nextToken: String
+}
+
+type RepositoryOverview @aws_api_key {
+  id: ID
+  meanTimeToRemediate: number
+  monthlyPeriod: String
+  numberFixed: number
+  numberManuallyCosed: number
+  openAlerts: number
+  organisationName: String
+  repositoryName: String
+  totalTimeToRemediate: number
+}
+
+type PaginatedRepositoryOverviews @aws_api_key {
+  repositoryOverviews: [RepositoryOverview!]!
+  nextToken: String
+}
+
+type OrganisationOverview @aws_api_key {
+  id: ID
+  meanTimeToRemediate: number
+  monthlyPeriod: String
+  numberFixed: number
+  numberManuallyCosed: number
+  openAlerts: number
+  organisationName: String
+  totalTimeToRemediate: number
+}
+
+type PaginatedOrganisationOverviews @aws_api_key {
+  organisationOverviews: [OrganisationOverview!]!
+  nextToken: String
+}
+
+type Query @aws_api_key {
+  #
+  # Queries for retrieving alert data
+  #
+  getAlert(id: ID, alertID: String): Alert
+
+  getAlerts(limit: Int, nextToken: String): PaginatedAlerts!
+
+  #
+  # Queries for retrieving repository overview data
+  #
+  getRepositoryOverview(id: ID, repositoryName: String): RepositoryOverview
+
+  getRepositoryOverviews(limit: Int, nextToken: String): PaginatedRepositoryOverviews!
+
+  #
+  # Queries for retrieving repository overview data
+  #
+  getOrganisationOverview(id: ID, organisationName: String): OrganisationOverview
+
+  getOrganisationOverviews(limit: Int, nextToken: String): PaginatedOrganisationOverviews!
+
+}
+
+schema {
+  query: Query
+}

@@ -5,6 +5,6 @@ echo "Checking Code Format, with prettier... "
 npm run prettier-check
 echo "Checking Cloud Formation Style, with cfn-lint "
 cfn-lint -t ./template.yml
-echo "Checking Cost Style, with eslint"
+echo "Checking Code Style, with eslint"
 npm run lint
 echo "You are able to run auto fix commands for prettier and eslint errors. If failed check out the package.json"
