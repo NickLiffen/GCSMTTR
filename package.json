@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky install",
     "format": "npx prettier --write '**/*.{ts,json,md}'",
-    "check": "npx prettier --check '**/*.{ts,json,md}'",
+    "prettier-check": "npx prettier --check '**/*.{ts,json,md}'",
     "codespace": "./setup.sh"
   },
   "repository": {

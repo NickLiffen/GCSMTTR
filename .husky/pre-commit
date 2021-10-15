@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm run check
+npm run prettier-check
+cfn-lint -t ./template.yml
