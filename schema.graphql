@@ -57,22 +57,19 @@ type Query @aws_api_key {
   #
   # Queries for retrieving alert data
   #
-  getAlert(id: ID, alertID: String): Alert
-
+  getAlert(id: ID): Alert
   getAlerts(limit: Int, nextToken: String): PaginatedAlerts!
 
   #
   # Queries for retrieving repository overview data
   #
-  getRepositoryOverview(id: ID, repositoryName: String): RepositoryOverview
-
+  getRepositoryOverview(id: ID): RepositoryOverview
   getRepositoryOverviews(limit: Int, nextToken: String): PaginatedRepositoryOverviews!
 
   #
   # Queries for retrieving repository overview data
   #
-  getOrganisationOverview(id: ID, organisationName: String): OrganisationOverview
-
+  getOrganisationOverview(id: ID): OrganisationOverview
   getOrganisationOverviews(limit: Int, nextToken: String): PaginatedOrganisationOverviews!
 
 }
