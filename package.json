@@ -5,8 +5,8 @@
   "main": "main.js",
   "scripts": {
     "prepare": "husky install",
-    "prettier-write": "npx prettier --write '**/*.{ts,json,md}'",
-    "prettier-check": "npx prettier --check '**/*.{ts,json,md}'",
+    "prettier-write": "npx prettier --write '**/*.{ts,json,md,yaml}'",
+    "prettier-check": "npx prettier --check '**/*.{ts,json,md,yaml}'",
     "lint": "npx eslint '**/*.{ts,json}'",
     "lint-fix": "npx eslint --fix '**/*.{ts,json}'",
     "codespace-setup": ".devcontainer/setup.sh"
