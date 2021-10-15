@@ -39,10 +39,14 @@ export const handler = async (
 
   const record = {
     id,
-    alertClosedAtReason: (alert.dismissed_reason ? "CLOSED" : "FIXED") as string,
+    alertClosedAtReason: (alert.dismissed_reason
+      ? "CLOSED"
+      : "FIXED") as string,
     alertClosedAtFullTimestamp: date.toISOString() as string,
     alertClosedAtYear: date.getUTCFullYear().toString() as string,
-    alertClosedAtMonth: date.toLocaleString('default', { month: 'long' }) as string,
+    alertClosedAtMonth: date.toLocaleString("default", {
+      month: "long",
+    }) as string,
     alertClosedAtDate: date.getUTCDate().toString() as string,
   } as Input;
 

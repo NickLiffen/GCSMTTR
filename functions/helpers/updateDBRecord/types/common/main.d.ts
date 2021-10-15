@@ -3,7 +3,6 @@ type Response = {
   record: Input | null;
 };
 
-
 type Input = {
   id: string;
   alertClosedAtReason: string;

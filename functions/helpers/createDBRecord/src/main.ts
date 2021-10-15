@@ -5,12 +5,10 @@ import { CodeScanningAlertCreatedEvent } from "@octokit/webhooks-types";
 export const handler = async (
   event: CodeScanningAlertCreatedEvent
 ): Promise<Response> => {
-  console.log('Function Invoked Successfully.');
+  console.log("Function Invoked Successfully.");
   console.log(event);
   await delay(1000);
-  const {
-    alert, repository, organization,
-  } = event;
+  const { alert, repository, organization } = event;
 
   const newDate = new Date(alert.created_at) as Date;
 
@@ -25,8 +23,10 @@ export const handler = async (
         ? organization.login
         : repository.owner.login) as string,
       alertCreatedAtYear: newDate.getUTCFullYear().toString() as string,
-      alertCreatedAtMonth: newDate.toLocaleString('default', { month: 'long' }) as string,
-      alertCreatedAtDate: newDate.getUTCDate().toString() as string
+      alertCreatedAtMonth: newDate.toLocaleString("default", {
+        month: "long",
+      }) as string,
+      alertCreatedAtDate: newDate.getUTCDate().toString() as string,
     },
   } as Response;
 
