@@ -793,7 +793,7 @@ Resources:
     Properties:
       ApiId: !GetAtt [AppSyncAPI, ApiId]
       TypeName: Query
-      FieldName: repositoryOverviewByRepositor
+      FieldName: repositoryOverviewbyRepositoryName
       Kind: PIPELINE
       PipelineConfig:
         Functions:
