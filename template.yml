@@ -766,7 +766,7 @@ Resources:
   AppSyncRepoOverviewDataPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: AppSyncOverviewDataPolicy
+      PolicyName: AppSyncRepoOverviewDataPolicy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -784,7 +784,7 @@ Resources:
   AppSyncOrgverviewDataPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: AppSyncOverviewDataPolicy
+      PolicyName: AppSyncOrgOverviewDataPolicy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
