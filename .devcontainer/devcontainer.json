@@ -32,7 +32,8 @@
     "dsznajder.es7-react-js-snippets",
     "nixon.env-cmd-file-syntax",
     "ms-azuretools.vscode-docker",
-    "yzhang.markdown-all-in-one"
+    "yzhang.markdown-all-in-one",
+    "sodatea.velocity"
   ],
 
   "forwardPorts": [4000],

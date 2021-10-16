@@ -17,6 +17,9 @@ Parameters:
   DeployEnvironment:
     Type: String
     Default: "dev"
+  DefaultLimit:
+    Type: Number
+    Default: 10
 
 Resources:
   ### Log Groups ###
@@ -783,6 +786,37 @@ Resources:
         TableName:
           !Select [1, !Split ["/", !GetAtt OrganisationOverviewTable.Arn]]
         AwsRegion: !Sub ${AWS::Region}
+
+  QueryRepositoryOverviewByRepositoryNameResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: repositoryOverviewByRepositor
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryRepositoryOverviewByRepositoryNameFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryRepositoryOverviewByRepositoryNameFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataRepositoryOverviewTableDataSource.Name
+      Description: AppSync QueryRepositoryOverviewByRepositoryName Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryRepositoryOverviewByRepositoryNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-response-mapping-template.vtl
 
 ###### Outputs ######
 

@@ -1,0 +1,38 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "Query",
+    "index": "summaryByrepositoryNameandMonthlyPeriod",
+    #set( $DefaultLimitString = $util.toJson(${ctx.stash.DefaultLimit}) )
+    #set( $Integer = 0 )
+    #set( $DefaultLimit = $Integer.parseInt($DefaultLimitString))
+    #set( $sortDirection = true )
+    #set( $maxItems = $DefaultLimit )
+    #set( $expressionValues = {} )
+    #set( $queryExpression = "repositoryName = :repositoryName" )
+
+    $!{expressionValues.put(":repositoryName", { "S": "${context.arguments.repositoryName}" })}
+
+    #if (${context.arguments.limit})
+        #set( $maxItems = ${context.arguments.limit} )
+    #end
+
+    #if (${context.arguments.sortDirection} && ${context.arguments.sortDirection} == "desc")
+        #set( $sortDirection = false )
+    #end
+
+    #if (${context.arguments.monthlyPeriod})
+        $!{expressionValues.put(":monthlyPeriod", {"S" : "${context.arguments.monthlyPeriod}"})}
+        #set( $queryExpression = "${queryExpression} and monthlyPeriod = :monthlyPeriod" )
+    #end
+
+    "query": {
+        "expression": "${queryExpression}",
+        "expressionValues" : $util.toJson($expressionValues)
+    },
+    "scanIndexForward" : $sortDirection,
+    "limit": $maxItems
+
+    #if( ${context.arguments.nextToken} )
+        ,"nextToken": $util.toJson($context.arguments.nextToken)
+    #end
+}
