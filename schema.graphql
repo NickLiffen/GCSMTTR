@@ -3,13 +3,13 @@ type Alert @aws_api_key {
   alertClosedAtDate: String
   alertClosedAtFullTimestamp: String
   alertClosedAtMonth: String
-  alertClosedAtReason: AccountType
+  alertClosedAtReason: String
   alertClosedAtYear: String
   alertCreatedAtDate: String
   alertCreatedAtFullTimestamp: String
   alertCreatedAtMonth: String
   alertCreatedAtYear: String
-  alertID: String
+  alertID: Int
   alertURL: String
   organisationName: String
   repositoryName: String
@@ -22,14 +22,14 @@ type PaginatedAlerts @aws_api_key {
 
 type RepositoryOverview @aws_api_key {
   id: ID
-  meanTimeToRemediate: number
+  meanTimeToRemediate: Int
   monthlyPeriod: String
-  numberFixed: number
-  numberManuallyCosed: number
-  openAlerts: number
+  numberFixed: Int
+  numberManuallyCosed: Int
+  openAlerts: Int
   organisationName: String
   repositoryName: String
-  totalTimeToRemediate: number
+  totalTimeToRemediate: Int
 }
 
 type PaginatedRepositoryOverviews @aws_api_key {
@@ -39,13 +39,13 @@ type PaginatedRepositoryOverviews @aws_api_key {
 
 type OrganisationOverview @aws_api_key {
   id: ID
-  meanTimeToRemediate: number
+  meanTimeToRemediate: Int
   monthlyPeriod: String
-  numberFixed: number
-  numberManuallyCosed: number
-  openAlerts: number
+  numberFixed: Int
+  numberManuallyCosed: Int
+  openAlerts: Int
   organisationName: String
-  totalTimeToRemediate: number
+  totalTimeToRemediate: Int
 }
 
 type PaginatedOrganisationOverviews @aws_api_key {
