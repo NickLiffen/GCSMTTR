@@ -11,6 +11,12 @@ Parameters:
   WriteCapacityUnits:
     Type: Number
     Default: 10
+  AppName:
+    Type: String
+    Default: "GitHubCodeScanning"
+  DeployEnvironment:
+    Type: String
+    Default: "dev"
 
 Resources:
   ### Log Groups ###
@@ -678,6 +684,105 @@ Resources:
         ScaleOutCooldown: 60
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
+
+  #
+  # AppSync GraphQL API
+  #
+
+  AppSyncAPI:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Join [-, [!Ref AppName, !Ref DeployEnvironment]]
+      AuthenticationType: API_KEY
+      XrayEnabled: TRUE
+      LogConfig:
+        FieldLogLevel: ALL
+        ExcludeVerboseContent: FALSE
+        CloudWatchLogsRoleArn: !GetAtt IAMRoleForCloudWatchFromAppSync.Arn
+
+  AppSyncSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DefinitionS3Location: "./schema.graphql"
+
+  AppSyncApiKey:
+    Type: "AWS::AppSync::ApiKey"
+    Properties:
+      Description: "API Key for GCSMTTR"
+      Expires: 1655376396
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+
+  IAMRoleForCloudWatchFromAppSync:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+                - events.amazonaws.com
+
+  AppSyncDataIAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+
+  #
+  # AppSync DataSources
+  #
+
+  AppSyncAllEventsTableDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      Name: AllEventsTable
+      Description: "The AllEvents Table AppSync Data Source"
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt AppSyncDataIAMRole.Arn
+      DynamoDBConfig:
+        TableName: !Select [1, !Split ["/", !GetAtt AllDataTable.Arn]]
+        AwsRegion: !Sub ${AWS::Region}
+
+  AppSyncDataRepositoryOverviewTableDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      Name: RepositoryOverviewTable
+      Description: "The Repository Overview Table AppSync Data Source"
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt AppSyncDataIAMRole.Arn
+      DynamoDBConfig:
+        TableName:
+          !Select [1, !Split ["/", !GetAtt RepositoryOverviewTable.Arn]]
+        AwsRegion: !Sub ${AWS::Region}
+
+  AppSyncDataOrganisationOverviewTableDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      Name: OrganisationOverviewTable
+      Description: "The Organisation Overview Table AppSync Data Source"
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt AppSyncDataIAMRole.Arn
+      DynamoDBConfig:
+        TableName:
+          !Select [1, !Split ["/", !GetAtt OrganisationOverviewTable.Arn]]
+        AwsRegion: !Sub ${AWS::Region}
 
 ###### Outputs ######
 

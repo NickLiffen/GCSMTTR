@@ -53,6 +53,11 @@ type PaginatedOrganisationOverviews @aws_api_key {
   nextToken: String
 }
 
+enum Sort {
+  asc
+  desc
+}
+
 type Query @aws_api_key {
   #
   # Queries for retrieving alert data
@@ -66,11 +71,33 @@ type Query @aws_api_key {
   getRepositoryOverview(id: ID): RepositoryOverview
   getRepositoryOverviews(limit: Int, nextToken: String): PaginatedRepositoryOverviews!
 
+  repositoryOverviewbyRepositoryName(
+    repositoryName: String!,
+    first: Int,
+    last: Int,
+    before: String, 
+    after: String, 
+    sortDirection: Sort, 
+    limit: Int,
+    nextToken: String
+  ): PaginatedRepositoryOverviews!
+
   #
   # Queries for retrieving repository overview data
   #
   getOrganisationOverview(id: ID): OrganisationOverview
   getOrganisationOverviews(limit: Int, nextToken: String): PaginatedOrganisationOverviews!
+
+ organisationOverviewbyOrganisationName(
+    organisationName: String!,
+    first: Int,
+    last: Int,
+    before: String, 
+    after: String, 
+    sortDirection: Sort, 
+    limit: Int,
+    nextToken: String
+  ): PaginatedRepositoryOverviews!
 
 }
 
