@@ -745,6 +745,60 @@ Resources:
               Service:
                 - appsync.amazonaws.com
 
+  AppSyncAllDataPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: AppSyncUsersDataPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:Scan"
+              - "dynamodb:BatchGetItem"
+            Resource:
+              - !Join ["", [!GetAtt AllDataTable.Arn, "*"]]
+      Roles:
+        - !Ref AppSyncDataIAMRole
+
+  AppSyncRepoOverviewDataPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: AppSyncOverviewDataPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:Scan"
+              - "dynamodb:BatchGetItem"
+            Resource:
+              - !Join ["", [!GetAtt RepositoryOverviewTable.Arn, "*"]]
+      Roles:
+        - !Ref AppSyncDataIAMRole
+
+  AppSyncOrgverviewDataPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: AppSyncOverviewDataPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:Scan"
+              - "dynamodb:BatchGetItem"
+            Resource:
+              - !Join ["", [!GetAtt OrganisationOverviewTable.Arn, "*"]]
+      Roles:
+        - !Ref AppSyncDataIAMRole
+
   #
   # AppSync DataSources
   #
@@ -786,6 +840,10 @@ Resources:
         TableName:
           !Select [1, !Split ["/", !GetAtt OrganisationOverviewTable.Arn]]
         AwsRegion: !Sub ${AWS::Region}
+
+  #
+  # AppSync Resolvers
+  #
 
   QueryRepositoryOverviewByRepositoryNameResolver:
     Type: AWS::AppSync::Resolver
