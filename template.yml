@@ -633,7 +633,7 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: summaryByRrganisationNameandMonthlyPeriod
+        - IndexName: summaryByOrganisationNameandMonthlyPeriod
           KeySchema:
             - AttributeName: organisationName
               KeyType: HASH
@@ -875,6 +875,37 @@ Resources:
       Name: QueryRepositoryOverviewByRepositoryNameFunction
       RequestMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-request-mapping-template.vtl
       ResponseMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-response-mapping-template.vtl
+
+  QueryOrganisationOverviewByOrganisationNameResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: organisationOverviewbyOrganisationName
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryOrganisationOverviewByOrganisationNameFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryOrganisationOverviewByOrganisationNameFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataOrganisationOverviewTableDataSource.Name
+      Description: AppSync QueryOrganisationOverviewByOrganisationName Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryOrganisationOverviewByOrganisationNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/organisationOverviewByOrganisationName-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/organisationOverviewByOrganisationName-response-mapping-template.vtl
 
 ###### Outputs ######
 

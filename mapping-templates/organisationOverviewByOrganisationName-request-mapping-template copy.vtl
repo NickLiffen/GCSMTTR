@@ -1,0 +1,44 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "Query",
+    "index": "summaryByOrganisationNameandMonthlyPeriod",
+    #set( $DefaultLimitString = $util.toJson(${ctx.stash.DefaultLimit}) )
+    #set( $Integer = 0 )
+    #set( $DefaultLimit = $Integer.parseInt($DefaultLimitString))
+
+    ## Set up some space to keep track of things to update
+    #set( $sortDirection = true )
+    #set( $maxItems = $DefaultLimit )
+    #set( $expressionValues = {} )
+
+    ## Setting the m5GlobalId
+    $!{expressionValues.put(":organisationName", { "S": "${context.arguments.organisationName}" })}
+    #set( $queryExpression = "organisationName = :organisationName" )
+
+    ## Setting the billingCycle
+    #if (${context.arguments.monthlyPeriod})
+        $!{expressionValues.put(":monthlyPeriod", { "S": "${context.arguments.monthlyPeriod}" })}
+        #set( $queryExpression = "${queryExpression} and monthlyPeriod = :monthlyPeriod" )
+    #end
+
+    ## Setting the limit
+    #if (${context.arguments.limit})
+        #set( $maxItems = ${context.arguments.limit} )
+    #end
+
+    ## Setting the sortDirection
+    #if (${context.arguments.sortDirection} && ${context.arguments.sortDirection} == "desc")
+        #set( $sortDirection = false )
+    #end
+
+    "query": {
+        "expression": "${queryExpression}",
+        "expressionValues" : $util.toJson($expressionValues)
+    },
+    "scanIndexForward" : $sortDirection,
+    "limit": $maxItems
+
+    #if( ${context.arguments.nextToken} )
+        ,"nextToken": $util.toJson($context.arguments.nextToken)
+    #end
+}
