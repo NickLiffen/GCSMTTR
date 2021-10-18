@@ -874,7 +874,7 @@ Resources:
       FunctionVersion: "2018-05-29"
       Name: QueryRepositoryOverviewByRepositoryNameFunction
       RequestMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-request-mapping-template.vtl
-      ResponseMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-response-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
 
   QueryOrganisationOverviewByOrganisationNameResolver:
     Type: AWS::AppSync::Resolver
@@ -905,7 +905,179 @@ Resources:
       FunctionVersion: "2018-05-29"
       Name: QueryOrganisationOverviewByOrganisationNameFunction
       RequestMappingTemplateS3Location: mapping-templates/organisationOverviewByOrganisationName-request-mapping-template.vtl
-      ResponseMappingTemplateS3Location: mapping-templates/organisationOverviewByOrganisationName-response-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
+
+  ### Multi Item Resolver and Functions ##
+
+  QueryAlertsResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: getAlerts
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryAlertsResolverFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryAlertsResolverFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncAllEventsTableDataSource.Name
+      Description: AppSync Alerts Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryAlertsNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/scan-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
+
+  QueryRepositoryOverviewsResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: getRepositoryOverviews
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryRepositoryOverviewsResolverFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryRepositoryOverviewsResolverFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataRepositoryOverviewTableDataSource.Name
+      Description: AppSync RepositoryOverviews Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryRepositoryOverviewsNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/scan-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
+
+  QueryOrganisationOverviewsResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: getOrganisationOverviews
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryOrganisationOverviewsResolverFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryOrganisationOverviewsResolverFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataOrganisationOverviewTableDataSource.Name
+      Description: AppSync OrganisationOverviews Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryOrganisationOverviewsNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/scan-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
+
+  ### Single Item Resolver and Functions ##
+
+  QueryAlertResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: getAlert
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryAlertResolverFunction.FunctionId
+      RequestMappingTemplate: "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryAlertResolverFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncAllEventsTableDataSource.Name
+      Description: AppSync Alert Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryAlertNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/getItem-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/getItem-response-mapping-template.vtl
+
+  QueryRepositoryOverviewResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: getRepositoryOverview
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryRepositoryOverviewResolverFunction.FunctionId
+      RequestMappingTemplate: "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryRepositoryOverviewResolverFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataRepositoryOverviewTableDataSource.Name
+      Description: AppSync RepositoryOverview Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryRepositoryOverviewNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/getItem-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/getItem-response-mapping-template.vtl
+
+  QueryOrganisationOverviewResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: getOrganisationOverview
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryOrganisationOverviewResolverFunction.FunctionId
+      RequestMappingTemplate: "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryOrganisationOverviewResolverFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataOrganisationOverviewTableDataSource.Name
+      Description: AppSync OrganisationOverview Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryOrganisationOverviewNameFunction
+      RequestMappingTemplateS3Location: mapping-templates/getItem-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/getItem-response-mapping-template.vtl
 
 ###### Outputs ######
 

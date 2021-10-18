@@ -1,7 +1,7 @@
 {
     "version" : "2017-02-28",
     "operation" : "Query",
-    "index": "summaryByrepositoryNameandMonthlyPeriod",
+    "index": "summaryByMonthlyPeriodandOrganisationName",
     #set( $DefaultLimitString = $util.toJson(${ctx.stash.DefaultLimit}) )
     #set( $Integer = 0 )
     #set( $DefaultLimit = $Integer.parseInt($DefaultLimitString))
@@ -11,14 +11,14 @@
     #set( $maxItems = $DefaultLimit )
     #set( $expressionValues = {} )
 
-    ## Setting the repositoryName
-    $!{expressionValues.put(":repositoryName", { "S": "${context.arguments.repositoryName}" })}
-    #set( $queryExpression = "repositoryName = :repositoryName" )
-
     ## Setting the monthlyPeriod
-    #if (${context.arguments.monthlyPeriod})
-        $!{expressionValues.put(":monthlyPeriod", { "S": "${context.arguments.monthlyPeriod}" })}
-        #set( $queryExpression = "${queryExpression} and monthlyPeriod = :monthlyPeriod" )
+    $!{expressionValues.put(":monthlyPeriod", { "S": "${context.arguments.monthlyPeriod}" })}
+    #set( $queryExpression = "monthlyPeriod = :monthlyPeriod" )
+
+    ## Setting the organisationName
+    #if (${context.arguments.organisationName})
+        $!{expressionValues.put(":organisationName", { "S": "${context.arguments.organisationName}" })}
+        #set( $queryExpression = "${queryExpression} and organisationName = :organisationName" )
     #end
 
     ## Setting the limit

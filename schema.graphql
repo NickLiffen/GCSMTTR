@@ -59,15 +59,18 @@ enum Sort {
 }
 
 type Query @aws_api_key {
+
   #
   # Queries for retrieving alert data
   #
+
   getAlert(id: ID): Alert
   getAlerts(limit: Int, nextToken: String): PaginatedAlerts!
 
   #
   # Queries for retrieving repository overview data
   #
+
   getRepositoryOverview(id: ID): RepositoryOverview
   getRepositoryOverviews(limit: Int, nextToken: String): PaginatedRepositoryOverviews!
 
@@ -79,20 +82,34 @@ type Query @aws_api_key {
     nextToken: String
   ): PaginatedRepositoryOverviews!
 
+  repositoryOverviewbyMonthlyPeriod(
+    monthlyPeriod: String!,
+    repositoryName: String,
+    limit: Int,
+    sortDirection: Sort,
+    nextToken: String
+  ): PaginatedRepositoryOverviews!
+
   #
   # Queries for retrieving repository overview data
   #
+
   getOrganisationOverview(id: ID): OrganisationOverview
   getOrganisationOverviews(limit: Int, nextToken: String): PaginatedOrganisationOverviews!
 
- organisationOverviewbyOrganisationName(
+  organisationOverviewbyOrganisationName(
     organisationName: String!,
-    first: Int,
-    last: Int,
-    before: String, 
-    after: String, 
-    sortDirection: Sort, 
+    monthlyPeriod: String,
     limit: Int,
+    sortDirection: Sort,
+    nextToken: String
+  ): PaginatedOrganisationOverviews!
+
+  organisationOverviewbyMonthlyPeriod(
+    monthlyPeriod: String!,
+    organisationName: String,
+    limit: Int,
+    sortDirection: Sort,
     nextToken: String
   ): PaginatedOrganisationOverviews!
 

@@ -11,11 +11,11 @@
     #set( $maxItems = $DefaultLimit )
     #set( $expressionValues = {} )
 
-    ## Setting the m5GlobalId
+    ## Setting the organisationName
     $!{expressionValues.put(":organisationName", { "S": "${context.arguments.organisationName}" })}
     #set( $queryExpression = "organisationName = :organisationName" )
 
-    ## Setting the billingCycle
+    ## Setting the monthlyPeriod
     #if (${context.arguments.monthlyPeriod})
         $!{expressionValues.put(":monthlyPeriod", { "S": "${context.arguments.monthlyPeriod}" })}
         #set( $queryExpression = "${queryExpression} and monthlyPeriod = :monthlyPeriod" )
