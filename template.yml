@@ -28,7 +28,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 1
-      LogGroupName: !Sub "/aws/vendedlogs/states/GCSMTTR-${AWS::StackName}"
+      LogGroupName: !Sub "/aws/vendedlogs/GCSMTTR-${AWS::StackName}"
 
   ### Lambda Functions ###
 
