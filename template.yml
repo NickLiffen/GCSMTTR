@@ -22,16 +22,6 @@ Parameters:
     Default: 10
 
 Resources:
-  ### Log Groups ###
-
-  GCSMTTRStateMachineLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 1
-      LogGroupName: !Sub "/aws/vendedlogs/GCSMTTR-${AWS::StackName}"
-
-  ### Lambda Functions ###
-
   ## Authorizers
   GitHubWebhookSecretValidator:
     Type: "AWS::Serverless::Function"
@@ -362,12 +352,6 @@ Resources:
                 - custom.kickOffSecretScanRemediation
               detail-type:
                 - transaction
-      Logging:
-        Destinations:
-          - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt GCSMTTRStateMachineLogGroup.Arn
-        IncludeExecutionData: true
-        Level: ALL
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref GitHubWebhookSecretValidator
