@@ -28,16 +28,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 1
-
-  RepoOverviewStateMachineLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 1
-
-  OrgOverviewStateMachineLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 1
+      LogGroupName: !Sub "/aws/vendedlogs/states/GCSMTTR-${AWS::StackName}"
 
   ### Lambda Functions ###
 
