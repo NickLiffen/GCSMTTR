@@ -30,17 +30,17 @@ Resources:
   GCSMTTRStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 7
+      RetentionInDays: 1
 
   RepoOverviewStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 7
+      RetentionInDays: 1
 
   OrgOverviewStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 7
+      RetentionInDays: 1
 
   ### Lambda Functions ###
 
@@ -700,7 +700,7 @@ Resources:
       XrayEnabled: TRUE
       LogConfig:
         FieldLogLevel: ALL
-        ExcludeVerboseContent: FALSE
+        ExcludeVerboseContent: TRUE
         CloudWatchLogsRoleArn: !GetAtt IAMRoleForCloudWatchFromAppSync.Arn
 
   AppSyncSchema:
