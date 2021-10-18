@@ -1,0 +1,9 @@
+#if($ctx.error)
+  $util.error($ctx.error.message, $ctx.error.type)
+#end
+
+#if($context.result.items && $context.result.items.size() > 0)
+    $util.toJson($context.result.items[0])
+#else
+    $util.toJson($context.result)
+#end

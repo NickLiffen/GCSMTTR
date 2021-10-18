@@ -1,0 +1,12 @@
+{
+    "version" : "2017-02-28",
+    #set( $DefaultLimitString = $util.toJson(${ctx.stash.DefaultLimit}) )
+    #set( $Integer = 0 )
+    #set( $DefaultLimit = $Integer.parseInt($DefaultLimitString))
+    "operation" : "Scan",
+    "limit": $util.toJson($util.defaultIfNull(${context.arguments.limit}, $DefaultLimit))
+
+    #if( ${context.arguments.nextToken} )
+        ,"nextToken": $util.toJson($context.arguments.nextToken)
+    #end
+}
