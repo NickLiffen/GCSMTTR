@@ -273,12 +273,10 @@ Resources:
             [$request.body.repository.full_name, $request.body.alert.number],
           ]
         MessageAttributes:
-          - firstAttribute:
-              DataType: String
-              StringValue: hello world
-          - secondAttribute:
-              DataType: String
-              StringValue: goodbye world
+          firstAttribute:
+            Type: String
+            Value: $request.header.foo
+            Name: firstAttribute
 
   HttpApiRole:
     Type: AWS::IAM::Role
