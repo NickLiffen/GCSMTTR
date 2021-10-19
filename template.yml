@@ -272,6 +272,11 @@ Resources:
             "-",
             [$request.body.repository.full_name, $request.body.alert.number],
           ]
+        MessageAttributes:
+          Signiture:
+            Name: Signiture
+            Type: String
+            Value: $request.headers.X-Hub-Signature-256
 
   HttpApiRole:
     Type: AWS::IAM::Role

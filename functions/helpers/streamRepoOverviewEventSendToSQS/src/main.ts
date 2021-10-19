@@ -1,6 +1,10 @@
 import { DynamoDBStreamEvent } from "aws-lambda";
 
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import {
+  SQSClient,
+  SendMessageCommand,
+  SendMessageCommandInput,
+} from "@aws-sdk/client-sqs";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -40,7 +44,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
       MessageGroupId: organisationName,
       QueueUrl: process.env.QUEUE_URL,
       MessageBody: JSON.stringify(data),
-    };
+    } as SendMessageCommandInput;
 
     console.log("input", input);
 

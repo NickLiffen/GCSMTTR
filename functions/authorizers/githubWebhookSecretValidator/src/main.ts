@@ -8,6 +8,8 @@ export const handler = async (
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> => {
   try {
+    console.log("event", event);
+
     await ssm();
 
     const secretValidBool = (await secretVerifier(event)) as boolean;
