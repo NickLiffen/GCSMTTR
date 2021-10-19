@@ -20,9 +20,37 @@ Parameters:
   DefaultLimit:
     Type: Number
     Default: 10
+  OrgToCheck:
+    Type: String
+    Default: octodemo
 
 Resources:
   ## Authorizers
+  GitHubWebhookSendToQueue:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: functions/authorizers/authorizerQueueFilter
+      Description: "A Lambda that sends data to a FIFO queue for auth processing"
+      Environment:
+        Variables:
+          NODE_ENV: Production
+          REGION: !Ref "AWS::Region"
+          QUEUE_URL: !Ref HTTPApiEventQueue
+      Events:
+        GatewayEndpoint:
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: POST
+            Path: /github/alert
+          Type: HttpApi
+      Handler: lib/main.handler
+      Runtime: nodejs14.x
+      Tracing: Active
+      Timeout: 3
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt HTTPApiEventQueue.QueueName
+
   GitHubWebhookSecretValidator:
     Type: "AWS::Serverless::Function"
     Properties:
@@ -49,20 +77,19 @@ Resources:
       Timeout: 10
       Tracing: Active
 
-  GitHubWebhookIPValidator:
+  GitHubWebhookOrgValidator:
     Type: "AWS::Serverless::Function"
     Properties:
-      CodeUri: functions/authorizers/githubWebhookIPValidator
-      Description: "A Lambda Function that validates the IP comes from GitHub"
+      CodeUri: functions/authorizers/githubWebhookOrgValidator
+      Description: "A Lambda Function that validates the org comes from GitHub"
       Environment:
         Variables:
           NODE_ENV: Production
           REGION: !Ref "AWS::Region"
+          GITHUB_ORG: !Ref OrgToCheck
       Handler: lib/main.handler
-      Policies:
-        - AmazonSSMReadOnlyAccess
       Runtime: nodejs14.x
-      Timeout: 10
+      Timeout: 3
       Tracing: Active
 
   ## DB Functions
@@ -237,7 +264,6 @@ Resources:
     Properties:
       ApiId: !Ref HttpApi
       RouteKey: POST /github/alert
-      Target: !Sub "integrations/${HttpApiPayloadRouteIntegration}"
       AuthorizerId: !Ref HttpApiAuthorizer
       AuthorizationType: REQUEST
 
@@ -251,50 +277,8 @@ Resources:
       AuthorizerCredentialsArn: !GetAtt LambdaInvokeRole.Arn
       Name: HTTPAPIAuth
       AuthorizerUri: !Sub
-        - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GitHubWebhookIPValidator}/invocations"
-        - { GitHubWebhookIPValidator: !GetAtt GitHubWebhookIPValidator.Arn }
-
-  HttpApiPayloadRouteIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref HttpApi
-      Description: Proxy incoming HTTP Payload into SQS
-      IntegrationType: AWS_PROXY
-      IntegrationSubtype: SQS-SendMessage
-      PayloadFormatVersion: "1.0"
-      CredentialsArn: !GetAtt HttpApiRole.Arn
-      RequestParameters:
-        MessageAttributes:
-          FirstAttribute:
-            DataType: String
-            StringValue: Hello
-        QueueUrl: !Ref HTTPApiEventQueue
-        MessageBody: $request.body
-        MessageGroupId: $request.body.repository.full_name
-        MessageDeduplicationId:
-          !Join [
-            "-",
-            [$request.body.repository.full_name, $request.body.alert.number],
-          ]
-
-  HttpApiRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: apigateway.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: ApiWriteToSQS
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              Action: sqs:SendMessage
-              Effect: Allow
-              Resource: !GetAtt HTTPApiEventQueue.Arn
+        - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GitHubWebhookOrgValidator}/invocations"
+        - { GitHubWebhookOrgValidator: !GetAtt GitHubWebhookOrgValidator.Arn }
 
   ### IAM Roles & Policies ###
 
@@ -341,7 +325,7 @@ Resources:
         Statement:
           - Effect: "Allow"
             Action: "lambda:InvokeFunction"
-            Resource: !GetAtt GitHubWebhookIPValidator.Arn
+            Resource: !GetAtt GitHubWebhookOrgValidator.Arn
       Roles:
         - Ref: "LambdaInvokeRole"
 
