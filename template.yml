@@ -264,6 +264,10 @@ Resources:
       PayloadFormatVersion: "1.0"
       CredentialsArn: !GetAtt HttpApiRole.Arn
       RequestParameters:
+        MessageAttributes:
+          FirstAttribute:
+            DataType: String
+            StringValue: Hello
         QueueUrl: !Ref HTTPApiEventQueue
         MessageBody: $request.body
         MessageGroupId: $request.body.repository.full_name
@@ -272,10 +276,6 @@ Resources:
             "-",
             [$request.body.repository.full_name, $request.body.alert.number],
           ]
-        MessageAttributes:
-          firstAttribute:
-            DataType: String
-            StringValue: $request.header.foo
 
   HttpApiRole:
     Type: AWS::IAM::Role
