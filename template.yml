@@ -28,18 +28,18 @@ Resources:
     Properties:
       CodeUri: functions/authorizers/githubWebhookSecretValidator
       Description: "A Lambda that validates a GitHub Secret"
+      ReservedConcurrentExecutions: 1
       Environment:
         Variables:
           NODE_ENV: Production
           REGION: !Ref "AWS::Region"
           EVENT_BUS_NAME: !Ref GSSAREventBus
       Events:
-        GatewayEndpoint:
+        UserEvent:
+          Type: SQS
           Properties:
-            ApiId: !Ref HttpApi
-            Method: POST
-            Path: /github/alert
-          Type: HttpApi
+            BatchSize: 1
+            Queue: !GetAtt HTTPApiEventQueue.Arn
       Handler: lib/main.handler
       Policies:
         - AmazonSSMReadOnlyAccess
@@ -231,17 +231,60 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       FailOnWarnings: True
-      RouteSettings:
-        "POST /github/alert":
-          ThrottlingBurstLimit: 5000
-      Auth:
-        Authorizers:
-          LambdaAuthorizer:
-            AuthorizerPayloadFormatVersion: "2.0"
-            EnableSimpleResponses: true
-            FunctionArn: !GetAtt GitHubWebhookIPValidator.Arn
-            FunctionInvokeRole: !GetAtt LambdaInvokeRole.Arn
-        DefaultAuthorizer: LambdaAuthorizer
+
+  HttpApiPayloadRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: POST /github/alert
+      Target: !Sub "integrations/${HttpApiPayloadRouteIntegration}"
+      AuthorizerId: !Ref HttpApiAuthorizer
+      AuthorizationType: REQUEST
+
+  HttpApiAuthorizer:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      ApiId: !Ref HttpApi
+      AuthorizerType: REQUEST
+      AuthorizerPayloadFormatVersion: "2.0"
+      EnableSimpleResponses: true
+      AuthorizerCredentialsArn: !GetAtt LambdaInvokeRole.Arn
+      Name: HTTPAPIAuth
+      AuthorizerUri: !Sub
+        - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GitHubWebhookIPValidator}/invocations"
+        - { GitHubWebhookIPValidator: !GetAtt GitHubWebhookIPValidator.Arn }
+
+  HttpApiPayloadRouteIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      Description: Proxy incoming HTTP Payload into SQS
+      IntegrationType: AWS_PROXY
+      IntegrationSubtype: SQS-SendMessage
+      PayloadFormatVersion: "1.0"
+      CredentialsArn: !GetAtt HttpApiRole.Arn
+      RequestParameters:
+        QueueUrl: !Ref HTTPApiEventQueue
+        MessageBody: $request.body
+
+  HttpApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiWriteToSQS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action: sqs:SendMessage
+              Effect: Allow
+              Resource: !GetAtt HTTPApiEventQueue.Arn
 
   ### IAM Roles & Policies ###
 
@@ -319,6 +362,22 @@ Resources:
       FifoQueue: true
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt RepositoryOverviewDeadLetterQueue.Arn
+        maxReceiveCount: 16
+
+  HTTPApiDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+
+  HTTPApiEventQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      ContentBasedDeduplication: false
+      DeduplicationScope: messageGroup
+      FifoThroughputLimit: perMessageGroupId
+      FifoQueue: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt HTTPApiDeadLetterQueue.Arn
         maxReceiveCount: 16
 
   RepositoryOverviewDeadLetterQueue:

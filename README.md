@@ -45,3 +45,17 @@ The reason why SQS is used is to maintain single record at a time processing. Th
 **Why doesn't the API Gateway Invoke the State machine directly after both authroizers have passed. Why is Event Bridge needed?**.
 
 _sigh_. You can't get the body of the payload within a lambda authorizer. This means that the secret validation can't be within a dedicated lambda authorizer, it needs to be within a standard lambda. This is painful, agreed, and adds about a second onto processing time. Something I will look to try and find a better way around. However, it works and the most important thing is there are two factors of authentication.
+
+## GraphQL Quries
+
+This service exposes data via a GraphQL API. The below shows examples of quries you can run to get data out of this service. For an extensive list, please see the `schema.graphql` and
+
+```graphql
+query MyQuery {
+  getAlert(id: "orgName/repoName/22") {
+    alertID
+    organisationName
+    repositoryName
+  }
+}
+```
