@@ -276,7 +276,7 @@ Resources:
           Signiture:
             Name: Signiture
             Type: String
-            Value: $request.headers.X-Hub-Signature-256
+            Value: "$request.headers.X-Hub-Signature-256"
 
   HttpApiRole:
     Type: AWS::IAM::Role
