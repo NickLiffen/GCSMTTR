@@ -274,9 +274,8 @@ Resources:
           ]
         MessageAttributes:
           firstAttribute:
-            Type: String
-            Value: $request.header.foo
-            Name: firstAttribute
+            DataType: String
+            StringValue: $request.header.foo
 
   HttpApiRole:
     Type: AWS::IAM::Role
