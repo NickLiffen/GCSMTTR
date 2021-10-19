@@ -273,9 +273,12 @@ Resources:
             [$request.body.repository.full_name, $request.body.alert.number],
           ]
         MessageAttributes:
-          Signiture:
+          firstAttribute:
             DataType: String
-            StringValue: "$request.header.x-hub-signature-256"
+            StringValue: hello world
+          secondAttribute:
+            DataType: String
+            StringValue: goodbye world
 
   HttpApiRole:
     Type: AWS::IAM::Role
