@@ -46,7 +46,7 @@ Resources:
         - EventBridgePutEventsPolicy:
             EventBusName: !Ref GSSAREventBus
       Runtime: nodejs14.x
-      Timeout: 60
+      Timeout: 10
       Tracing: Active
 
   GitHubWebhookIPValidator:
@@ -62,7 +62,7 @@ Resources:
       Policies:
         - AmazonSSMReadOnlyAccess
       Runtime: nodejs14.x
-      Timeout: 60
+      Timeout: 10
       Tracing: Active
 
   ## DB Functions
@@ -80,7 +80,7 @@ Resources:
       Policies:
         - AmazonSSMReadOnlyAccess
       Runtime: nodejs14.x
-      Timeout: 60
+      Timeout: 10
       Tracing: Active
 
   UpdateDBRecord:
@@ -99,7 +99,7 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref AllDataTable
       Runtime: nodejs14.x
-      Timeout: 60
+      Timeout: 10
       Tracing: Active
 
   ## DB Triggers ##
@@ -266,6 +266,12 @@ Resources:
       RequestParameters:
         QueueUrl: !Ref HTTPApiEventQueue
         MessageBody: $request.body
+        MessageGroupId: $request.body.repository.full_name
+        MessageDeduplicationId:
+          !Join [
+            "-",
+            [$request.body.repository.full_name, $request.body.alert.number],
+          ]
 
   HttpApiRole:
     Type: AWS::IAM::Role
