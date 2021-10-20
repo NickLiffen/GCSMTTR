@@ -5,9 +5,7 @@ import {
   PutEventsCommandOutput,
 } from "@aws-sdk/client-eventbridge";
 
-import { APIGatewayProxyEventV2 } from "aws-lambda";
-
-export const put = async (event: APIGatewayProxyEventV2): Promise<number> => {
+export const put = async (event: any): Promise<number> => {
   try {
     const client = new EventBridgeClient({
       region: process.env.REGION,
@@ -20,7 +18,7 @@ export const put = async (event: APIGatewayProxyEventV2): Promise<number> => {
           EventBusName: process.env.EVENT_BUS_NAME,
           DetailType: "transaction",
           Time: new Date(),
-          Detail: event.body,
+          Detail: event,
         },
       ],
     } as PutEventsCommandInput;
