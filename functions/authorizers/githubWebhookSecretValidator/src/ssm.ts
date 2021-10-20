@@ -1,15 +1,23 @@
-import { SSMClient, GetParametersByPathCommand } from "@aws-sdk/client-ssm";
+import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 
 export const ssm = async (): Promise<void> => {
   const region = process.env.REGION ? process.env.REGION : "us-east-1";
+
   const client = new SSMClient({ region });
-  const command = new GetParametersByPathCommand({
-    Path: "/gcsmttr",
+  const command = new GetParametersCommand({
+    Names: [
+      "/gcsmttr/APP_CLIENT_ID",
+      "/gcsmttr/APP_CLIENT_SECRET",
+      "/gcsmttr/APP_ID",
+      "/gcsmttr/APP_INSTALLATION_ID",
+      "/gcsmttr/APP_PRIVATE_KEY",
+      "/gcsmttr/GITHUB_WEBHOOKS_SECRET",
+    ],
     WithDecryption: true,
   });
-
   try {
     const { Parameters } = await client.send(command);
+    console.log(Parameters);
 
     if (Parameters) {
       Parameters.forEach((param) => {
