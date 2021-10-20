@@ -1,12 +1,11 @@
 import { verify } from "@octokit/webhooks-methods";
-import { APIGatewayProxyEventV2 } from "aws-lambda";
 
-export const secretVerifier = async (
-  event: APIGatewayProxyEventV2
-): Promise<boolean> => {
+export const secretVerifier = async (event: any): Promise<boolean> => {
   try {
+    console.log(event);
+
     const body = event.body as string;
-    const signature = event.headers["x-hub-signature-256"] as string;
+    const signature = event.signature as string;
 
     console.log("body", body);
     console.log("signature", signature);

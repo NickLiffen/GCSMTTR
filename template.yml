@@ -267,6 +267,32 @@ Resources:
                 Action: "states:StartExecution"
                 Resource: !Ref GCSMTTRStateMachine
 
+  LambdaInvokeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+
+  LambdaInvokePolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "LambdaInvokePolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "lambda:InvokeFunction"
+            Resource: !GetAtt GitHubWebhookSendToQueue.Arn
+      Roles:
+        - Ref: "LambdaInvokeRole"
+
   ### SQS Queues ###
 
   GSSAREventQueue:

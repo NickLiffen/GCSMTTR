@@ -1,6 +1,11 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
     GITHUB_WEBHOOKS_SECRET: string;
+    APP_ID: string;
+    APP_PRIVATE_KEY: string;
+    APP_INSTALLATION_ID: string;
+    APP_CLIENT_ID: string;
+    APP_CLIENT_SECRET: string;
   }
 }
 

@@ -1,18 +1,43 @@
 import { ssm } from "./ssm";
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { SQSEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { secretVerifier } from "./verify";
+
+import { githubAuth } from "./getGitHubAppJWT";
+import { checkIPs } from "./checkIPs";
+
+import { getGitHubIpRange } from "./getIPs";
 
 import { put } from "./eventBridge";
 
 export const handler = async (
-  event: APIGatewayProxyEventV2
+  event: SQSEvent
 ): Promise<APIGatewayProxyResultV2> => {
   try {
     console.log("event", event);
 
+    const sqsBody = JSON.parse(event.Records[0].body);
+
+    console.log("sqsBody", sqsBody);
+
     await ssm();
 
-    const secretValidBool = (await secretVerifier(event)) as boolean;
+    /* GitHub IP Check */
+
+    const token = (await githubAuth()) as string;
+    const ips = (await getGitHubIpRange(token)) as hookIPAddress;
+    const isAuthorized = (await checkIPs(ips, sqsBody.sourceIP)) as boolean;
+    console.log(isAuthorized);
+
+    if (!isAuthorized) {
+      return {
+        statusCode: 500,
+        body: "unathorized IP",
+      };
+    }
+
+    /* GitHub Secret Validator */
+
+    const secretValidBool = (await secretVerifier(sqsBody)) as boolean;
 
     console.log(`Is secret valid: ${secretValidBool}`);
 
@@ -23,7 +48,9 @@ export const handler = async (
       };
     }
 
-    const errorCount = await put(event);
+    /* Send to event bridge */
+
+    const errorCount = await put(sqsBody.body);
 
     console.log(
       `Was there an error in sending the message? (Yes if > 0): ${errorCount}`
