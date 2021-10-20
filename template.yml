@@ -239,24 +239,10 @@ Resources:
   HttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      AccessLogSettings:
-        DestinationArn: !GetAtt HttpApiAccessLogs.Arn
-        Format: >-
-          { "requestId":"$context.requestId","ip": "$context.identity.sourceIp",
-          "requestTime":"$context.requestTime","httpMethod":"$context.httpMethod",
-          "routeKey":"$context.routeKey","status":"$context.status",
-          "protocol":"$context.protocol","responseLength":"$context.responseLength",
-          "error" : $context.authorizer.error }
       FailOnWarnings: True
       RouteSettings:
         "POST /github/alert":
           ThrottlingBurstLimit: 5000
-
-  HttpApiAccessLogs:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      RetentionInDays: 7
-      LogGroupName: !Sub "/aws/vendedlogs/api/httpapi-${AWS::StackName}"
 
   ### IAM Roles & Policies ###
 
