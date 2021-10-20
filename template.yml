@@ -20,9 +20,6 @@ Parameters:
   DefaultLimit:
     Type: Number
     Default: 10
-  OrgToCheck:
-    Type: String
-    Default: octodemo
 
 Resources:
   ## Authorizers
@@ -75,21 +72,6 @@ Resources:
             EventBusName: !Ref GSSAREventBus
       Runtime: nodejs14.x
       Timeout: 10
-      Tracing: Active
-
-  GitHubWebhookOrgValidator:
-    Type: "AWS::Serverless::Function"
-    Properties:
-      CodeUri: functions/authorizers/githubWebhookOrgValidator
-      Description: "A Lambda Function that validates the org comes from GitHub"
-      Environment:
-        Variables:
-          NODE_ENV: Production
-          REGION: !Ref "AWS::Region"
-          GITHUB_ORG: !Ref OrgToCheck
-      Handler: lib/main.handler
-      Runtime: nodejs14.x
-      Timeout: 3
       Tracing: Active
 
   ## DB Functions
@@ -264,21 +246,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpApi
       RouteKey: POST /github/alert
-      AuthorizerId: !Ref HttpApiAuthorizer
       AuthorizationType: REQUEST
-
-  HttpApiAuthorizer:
-    Type: AWS::ApiGatewayV2::Authorizer
-    Properties:
-      ApiId: !Ref HttpApi
-      AuthorizerType: REQUEST
-      AuthorizerPayloadFormatVersion: "2.0"
-      EnableSimpleResponses: true
-      AuthorizerCredentialsArn: !GetAtt LambdaInvokeRole.Arn
-      Name: HTTPAPIAuth
-      AuthorizerUri: !Sub
-        - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GitHubWebhookOrgValidator}/invocations"
-        - { GitHubWebhookOrgValidator: !GetAtt GitHubWebhookOrgValidator.Arn }
 
   ### IAM Roles & Policies ###
 
@@ -302,32 +270,6 @@ Resources:
               - Effect: Allow
                 Action: "states:StartExecution"
                 Resource: !Ref GCSMTTRStateMachine
-
-  LambdaInvokeRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - apigateway.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-
-  LambdaInvokePolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "LambdaInvokePolicy"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Action: "lambda:InvokeFunction"
-            Resource: !GetAtt GitHubWebhookOrgValidator.Arn
-      Roles:
-        - Ref: "LambdaInvokeRole"
 
   ### SQS Queues ###
 
