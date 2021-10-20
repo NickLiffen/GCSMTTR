@@ -349,8 +349,6 @@ Resources:
                 - transaction
       Policies:
         - LambdaInvokePolicy:
-            FunctionName: !Ref GitHubWebhookSecretValidator
-        - LambdaInvokePolicy:
             FunctionName: !Ref CreateDBRecord
         - LambdaInvokePolicy:
             FunctionName: !Ref UpdateDBRecord
