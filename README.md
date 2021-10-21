@@ -1,10 +1,32 @@
 # GCSMTTR - GitHub Code Scanning Mean Time to Remedaite (Data Storage + API)
 
+Welcome to the GCSMTTR Data Storage &amp; API Product! :wave:
+
+## Table of Contents
+
+- [Overview](#overview)
+- [How this works](##how-this-works)
+  - [Non-Technical](#non-technical)
+- [Design](#design)
+  - [Design Overview](#design-overview)
+  - [Technoligies Used](#technoligies-used)
+- [Pre-Reqs](#pre-reqs)
+- [Initial Installation](#initial-installation)
+  - [Step One: Create IAM User](#step-one-create-iam-user)
+  - [Step Two: Create and Configure GitHub App](#step-two-create-and-configure-github-app)
+  - [Step Three: Create Parameters within AWS Systems Manager (Parameter Store)](#step-three-create-parameters-within-aws-systems-manager-parameter-store)
+  - [Step Four: Deployment into AWS](#step-four-deployment-into-aws)
+  - [Step Five: Update GitHub App to send webhooks to the URL output from Step Five](#step-five-update-github-app-to-send-webhooks-to-the-url-output-from-step-five)
+- [Configuring Remediators](#configuring-remediators)
+- [Issues and Feedback](#issues-and-feedback)
+- [Contributing](#contributing)
+- [FAQs](#faqs)
+
 ## Overview
 
-This solution allows enterprises to collect and report mean time to remedaite (MTTR) data for GitHub organisations, and repositories within them organisations.
+The GCSMTTR Data Storage &amp; API Product solution allows enterprises to collect and report mean time to remedaite (MTTR) data for GitHub organisations, and repositories within them organisations.
 
-## How it works
+## How this works
 
 A high level design of this solution how this solution works is found below:
 
@@ -104,7 +126,7 @@ query GetOverviewDataAboutASpecificOrganisation($organisationName: String) {
 
 These are only example quries and can be adjusted, added to or removed to fit whatever requirments are inline with the `schema.graphql`.
 
-## Technical Decisions
+## FAQ's
 
 **Why use an SQS Queue? Why doesn't the DynamoDB Stream invoke the lambda which enteres data into the Repo + Org Overview Table(s)?**.
 
