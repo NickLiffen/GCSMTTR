@@ -1,7 +1,7 @@
 {
-  "name": "handle-db-record-update",
+  "name": "api-authorizer-queue",
   "version": "1.0.0",
-  "description": "A Lambda Function triggers from a DynamoDB Stream. Purpose is to build the data for the overview table",
+  "description": "A Lambda Function that sends data to an SQS queue for authentication processing",
   "scripts": {
     "build": "npx tsc",
     "format": "npx prettier --write '**/*.ts'",

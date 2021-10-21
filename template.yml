@@ -19,15 +19,14 @@ Parameters:
     Default: "dev"
   DefaultLimit:
     Type: Number
-    Default: 10
+    Default: 100
 
 Resources:
-  ## Authorizers
   GitHubWebhookSendToQueue:
     Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: functions/authorizers/authorizerQueueFilter
-      Description: "A Lambda that sends data to a FIFO queue for auth processing"
+      Description: "A function which proxies data in a structured format to the authorizer"
       Environment:
         Variables:
           NODE_ENV: Production
@@ -48,11 +47,12 @@ Resources:
         - SQSSendMessagePolicy:
             QueueName: !GetAtt HTTPApiEventQueue.QueueName
 
+  ## A function which proxies data in a structured format to the authorizer ##
   GitHubWebhookSecretValidator:
     Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: functions/authorizers/githubWebhookSecretValidator
-      Description: "A Lambda that validates a GitHub Secret"
+      Description: "A Lambda that validates a GitHub Secret by checking its IP and Secret"
       ReservedConcurrentExecutions: 1
       Environment:
         Variables:

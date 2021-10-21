@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2 } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResult } from "aws-lambda";
 
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
@@ -6,23 +6,20 @@ import { v4 as uuidv4 } from "uuid";
 
 export const handler = async (
   event: APIGatewayProxyEventV2
-): Promise<string> => {
+): Promise<APIGatewayProxyResult> => {
   try {
-    const sourceIP = event.requestContext.http.sourceIp as string;
-    const body = event.body;
-    const signature = event.headers["x-hub-signature-256"] as string;
-
-    const data = {
-      sourceIP,
-      body,
-      signature,
-    };
+    /* Structuring the data we need to perform secret + IP validation of webhook */
+    const MessageBody = JSON.stringify({
+      sourceIP: event.requestContext.http.sourceIp as string,
+      body: event.body as string,
+      signature: event.headers["x-hub-signature-256"] as string,
+    }) as string;
 
     const input = {
       MessageDeduplicationId: uuidv4(),
       MessageGroupId: uuidv4(), // make this org/repo/alertId
       QueueUrl: process.env.QUEUE_URL,
-      MessageBody: JSON.stringify(data),
+      MessageBody,
     };
 
     const client = new SQSClient({ region: process.env.REGION });
@@ -30,7 +27,10 @@ export const handler = async (
 
     await client.send(command);
 
-    return "data to send to queue successfully";
+    return {
+      statusCode: 200,
+      body: "data sent to queue successfully",
+    };
   } catch (error: any) {
     console.log(error);
     throw error;
