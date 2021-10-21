@@ -30,7 +30,7 @@ The GCSMTTR Data Storage &amp; API Product solution allows enterprises to collec
 
 A high level design of this solution how this solution works is found below:
 
-![GCSMTTR](https://lucid.app/publicSegments/view/d84edc5b-5da1-4b82-b0f7-ab0ccac4b78b/image.png)
+![GCSMTTR](https://lucid.app/publicSegments/view/03ef3f46-d49a-47f0-9b90-c535b0a8f907/image.png)
 
 To explain the diagram above ...
 
