@@ -88,6 +88,10 @@ query GetAllAlerts($nextToken: String) {
 }
 ```
 
+An example response could look like: 
+
+<img width="771" alt="GetAllAlerts" src="https://user-images.githubusercontent.com/6696451/138509025-b715fda0-605c-49bc-bff8-eb5891c0b9de.png">
+
 > A GraphQL Query that returns data about a single alert stored in the All Alerts Table. The format of the `id` is `org/repo/alertID`
 
 ```graphql
@@ -105,6 +109,10 @@ query GetSpecificAlertDetail($id: ID) {
   }
 }
 ```
+
+An example response could look like: 
+
+<img width="774" alt="GetSpecificAlertDetail" src="https://user-images.githubusercontent.com/6696451/138509079-1c4090bf-19e2-4759-b03f-9f6882828a9d.png">
 
 ### Repository Overview(s) Queries
 
@@ -126,6 +134,10 @@ query GetAllRepositoryOverviews($nextToken: String) {
 }
 ```
 
+An example response could look like: 
+
+<img width="773" alt="GetAllRepositoryOverviews" src="https://user-images.githubusercontent.com/6696451/138509141-ffe86f2f-431b-45aa-a6b9-766cfdca470d.png">
+
 > A GraphQL Query that returns data about a single repository stored in the Repository Overview Table. The format of the `repositoryName` is `org/repo`
 
 ```graphql
@@ -144,6 +156,10 @@ query GetOverviewDataAboutASpecificRepository($repositoryName: String!) {
 }
 ```
 
+An example response could look like: 
+
+<img width="780" alt="GetOverviewDataAboutASpecificRepository" src="https://user-images.githubusercontent.com/6696451/138509199-31bc44b7-b465-4051-b0ed-c763a5c1e3c6.png">
+
 > A GraphQL Query that returns data about a monthlyPeriod stored in the Repository Overview Table. The format of the `monthlyPeriod` is `yyyy-MONTH`
 
 ```graphql
@@ -161,6 +177,10 @@ query GetRepoOverviewDataFromASpecificMonth($monthlyPeriod: String!) {
   }
 }
 ```
+
+An example response could look like: 
+
+<img width="769" alt="GetRepoOverviewDataFromASpecificMonth" src="https://user-images.githubusercontent.com/6696451/138509231-6762af1e-db7f-40f1-877e-a0c0d419bb1c.png">
 
 ### Organisation(s) Overview
 
@@ -182,6 +202,10 @@ query GetOrganisationOverviews($nextToken: String) {
 }
 ```
 
+An example response could look like: 
+
+<img width="481" alt="GetOrganisationOverviews" src="https://user-images.githubusercontent.com/6696451/138509284-32640cd7-3177-40e6-b34e-3e7019c8df4b.png">
+
 > A GraphQL Query that returns data about a single organization stored in the Organisation Overview Table. The format of the `organisationName` is `org`.
 
 ```graphql
@@ -200,6 +224,10 @@ query GetOverviewDataAboutASpecificOrganisation($organisationName: String!) {
 }
 ```
 
+An example response could look like: 
+
+<img width="480" alt="GetOverviewDataAboutASpecificOrganisation" src="https://user-images.githubusercontent.com/6696451/138509319-b7ec8bdf-8f67-4546-ac2b-806794e3ac16.png">
+
 > A GraphQL Query that returns data about a monthlyPeriod stored in the Organisation Overview Table. The format of the `monthlyPeriod` is `yyyy-mm`
 
 ```graphql
@@ -217,6 +245,10 @@ query GetOverviewDataFromASpecificMonth($monthlyPeriod: String) {
   }
 }
 ```
+
+An example response could look like: 
+
+<img width="486" alt="GetOverviewDataFromASpecificMonth" src="https://user-images.githubusercontent.com/6696451/138509333-e7d19f74-d062-40aa-99e2-ee6b421f34f8.png">
 
 These are only example queries and can be adjusted, added to or removed to fit whatever requirements are in line with the `schema.graphql`.
 
