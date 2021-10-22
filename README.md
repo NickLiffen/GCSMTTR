@@ -32,7 +32,7 @@ GCSMTTR Data Storage &amp; API product is an open-source initiative helping team
 
 A high-level design of the solution how this solution works is found below:
 
-![GCSMTTR](https://pasteboard.co/y7zdvGI1fGeN.png)
+<img width="1012" alt="GCSMTTR" src="https://user-images.githubusercontent.com/6696451/138441444-984acdf2-d056-472e-8c25-1a10d76daebd.png">
 
 To explain the diagram above ...
 
