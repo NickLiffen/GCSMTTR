@@ -22,7 +22,7 @@ type PaginatedAlerts @aws_api_key {
 
 type RepositoryOverview @aws_api_key {
   id: ID
-  meanTimeToRemediate: Int
+  meanTimeToRemediate: Float
   monthlyPeriod: String
   numberFixed: Int
   numberManuallyCosed: Int|Double
@@ -39,7 +39,7 @@ type PaginatedRepositoryOverviews @aws_api_key {
 
 type OrganisationOverview @aws_api_key {
   id: ID
-  meanTimeToRemediate: Int
+  meanTimeToRemediate: Float
   monthlyPeriod: String
   numberFixed: Int
   numberManuallyCosed: Int
