@@ -30,7 +30,7 @@ The GCSMTTR Data Storage &amp; API Product solution allows enterprises to collec
 
 A high level design of this solution how this solution works is found below:
 
-![GCSMTTR](https://pasteboard.co/y7zdvGI1fGeN.png)
+<img width="1012" alt="GCSMTTR" src="https://user-images.githubusercontent.com/6696451/138441444-984acdf2-d056-472e-8c25-1a10d76daebd.png">
 
 To explain the diagram above ...
 
