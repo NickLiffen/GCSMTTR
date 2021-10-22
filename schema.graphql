@@ -25,7 +25,7 @@ type RepositoryOverview @aws_api_key {
   meanTimeToRemediate: Float
   monthlyPeriod: String
   numberFixed: Int
-  numberManuallyCosed: Int|Double
+  numberManuallyCosed: Int
   openAlerts: Int
   organisationName: String
   repositoryName: String
