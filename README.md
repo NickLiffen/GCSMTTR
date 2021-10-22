@@ -91,9 +91,15 @@ query GetAllAlerts($nextToken: String) {
 > A GraphQL Query that returns data about a single alert stored in the All Alerts Table. The format of the `id` is `org/repo/alertID`
 
 ```graphql
-query GetSpecificAlertDetail($id: String) {
+query GetSpecificAlertDetail($id: ID) {
   getAlert(id: $id) {
+    id
+    alertCreatedAtDate
+    alertCreatedAtFullTimestamp
+    alertCreatedAtMonth
+    alertCreatedAtYear
     alertID
+    alertURL
     organisationName
     repositoryName
   }
@@ -123,7 +129,7 @@ query GetAllRepositoryOverviews($nextToken: String) {
 > A GraphQL Query that returns data about a single repository stored in the Repository Overview Table. The format of the `repositoryName` is `org/repo`
 
 ```graphql
-query GetOverviewDataAboutASpecificRepository($repositoryName: String) {
+query GetOverviewDataAboutASpecificRepository($repositoryName: String!) {
   repositoryOverviewbyRepositoryName(repositoryName: $repositoryName) {
     data {
       openAlerts
@@ -138,10 +144,10 @@ query GetOverviewDataAboutASpecificRepository($repositoryName: String) {
 }
 ```
 
-> A GraphQL Query that returns data about a monthlyPeriod stored in the Repository Overview Table. The format of the `monthlyPeriod` is `yyyy-mm`
+> A GraphQL Query that returns data about a monthlyPeriod stored in the Repository Overview Table. The format of the `monthlyPeriod` is `yyyy-MONTH`
 
 ```graphql
-query GetOverviewDataFromASpecificMonth($monthlyPeriod: String) {
+query GetOverviewDataFromASpecificMonth($monthlyPeriod: String!) {
   repositoryOverviewbyMonthlyPeriod(monthlyPeriod: $monthlyPeriod) {
     data {
       openAlerts

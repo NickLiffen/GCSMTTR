@@ -534,7 +534,7 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: summaryByrepositoryNameandMonthlyPeriod
+        - IndexName: summaryByRepositoryNameandMonthlyPeriod
           KeySchema:
             - AttributeName: repositoryName
               KeyType: HASH
@@ -855,6 +855,37 @@ Resources:
       RequestMappingTemplateS3Location: mapping-templates/repositoryOverviewByRepositoryName-request-mapping-template.vtl
       ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
 
+  QueryRepositoryOverviewByMonthlyPeriodResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: repositoryOverviewbyMonthlyPeriod
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryRepositoryOverviewByMonthlyPeriodFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryRepositoryOverviewByMonthlyPeriodFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataRepositoryOverviewTableDataSource.Name
+      Description: AppSync QueryRepositoryOverviewByMonthlyPeriod Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryRepositoryOverviewByMonthlyPeriodFunction
+      RequestMappingTemplateS3Location: mapping-templates/repositoryOverviewByMonthlyPeriod-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
+
   QueryOrganisationOverviewByOrganisationNameResolver:
     Type: AWS::AppSync::Resolver
     DependsOn: AppSyncSchema
@@ -884,6 +915,37 @@ Resources:
       FunctionVersion: "2018-05-29"
       Name: QueryOrganisationOverviewByOrganisationNameFunction
       RequestMappingTemplateS3Location: mapping-templates/organisationOverviewByOrganisationName-request-mapping-template.vtl
+      ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
+
+  QueryOrganisationOverviewByMonthlyPeriodResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: AppSyncSchema
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      TypeName: Query
+      FieldName: organisationOverviewbyMonthlyPeriod
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt QueryOrganisationOverviewByMonthlyPeriodFunction.FunctionId
+      RequestMappingTemplate: !Join
+        - "\n"
+        - - !Sub
+            - "#set( $resultsLimit = ${queryLimit} )"
+            - { queryLimit: !Ref DefaultLimit }
+          - "#set( $ctx.stash.DefaultLimit = ${resultsLimit} )"
+          - "{}"
+      ResponseMappingTemplate: "$util.toJson($context.result)"
+
+  QueryOrganisationOverviewByMonthlyPeriodFunction:
+    Type: AWS::AppSync::FunctionConfiguration
+    Properties:
+      ApiId: !GetAtt [AppSyncAPI, ApiId]
+      DataSourceName: !GetAtt AppSyncDataOrganisationOverviewTableDataSource.Name
+      Description: AppSync QueryOrganisationOverviewByMonthlyPeriod Query Function
+      FunctionVersion: "2018-05-29"
+      Name: QueryOrganisationOverviewByMonthlyPeriodFunction
+      RequestMappingTemplateS3Location: mapping-templates/organisationOverviewByMonthlyPeriod-request-mapping-template.vtl
       ResponseMappingTemplateS3Location: mapping-templates/multiItem-response-mapping-template.vtl
 
   ### Multi Item Resolver and Functions ##
