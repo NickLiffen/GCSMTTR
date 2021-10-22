@@ -534,7 +534,7 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: summaryByRepositoryNameandMonthlyPeriod
+        - IndexName: summaryByrepositoryNameandMonthlyPeriod
           KeySchema:
             - AttributeName: repositoryName
               KeyType: HASH
