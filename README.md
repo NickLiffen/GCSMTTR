@@ -147,7 +147,7 @@ query GetOverviewDataAboutASpecificRepository($repositoryName: String!) {
 > A GraphQL Query that returns data about a monthlyPeriod stored in the Repository Overview Table. The format of the `monthlyPeriod` is `yyyy-MONTH`
 
 ```graphql
-query GetOverviewDataFromASpecificMonth($monthlyPeriod: String!) {
+query GetRepoOverviewDataFromASpecificMonth($monthlyPeriod: String!) {
   repositoryOverviewbyMonthlyPeriod(monthlyPeriod: $monthlyPeriod) {
     data {
       openAlerts
@@ -185,13 +185,13 @@ query GetOrganisationOverviews($nextToken: String) {
 > A GraphQL Query that returns data about a single organization stored in the Organisation Overview Table. The format of the `organisationName` is `org`.
 
 ```graphql
-query GetOverviewDataAboutASpecificOrganisation($organisationName: String) {
+query GetOverviewDataAboutASpecificOrganisation($organisationName: String!) {
   organisationOverviewbyOrganisationName(organisationName: $organisationName) {
     data {
       openAlerts
       numberFixed
       numberManuallyCosed
-      OrganisationName
+      organisationName
       totalTimeToRemediate
       meanTimeToRemediate
     }
