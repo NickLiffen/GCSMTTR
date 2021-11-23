@@ -1,5 +1,5 @@
 {
-  "name": "nickliffen/gssar",
+  "name": "nickliffen/gcsmttr",
   "image": "ghcr.io/nickliffen/csenv:main",
   "settings": {},
   "extensions": [
@@ -15,6 +15,5 @@
     "donjayamanne.githistory",
     "nixon.env-cmd-file-syntax"
   ],
-  "postCreateCommand": "npm install && npm run codespace-setup",
   "remoteUser": "node"
 }
