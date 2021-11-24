@@ -33,7 +33,7 @@ export const formatDataToModifyEvent = async (
 
   totalTimeToRemediate = totalTimeToRemediate + milliseconds;
   meanTimeToRemediate = totalTimeToRemediate / (fixedAlerts + closedAlerts);
-  openAlerts = openAlerts - 1;
+  openAlerts = openAlerts === 0 ? 0 : openAlerts - 1;
 
   return {
     fixedAlerts: fixedAlerts.toString(),

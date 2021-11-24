@@ -11,12 +11,12 @@ export const formatDataToModifyEvent = async (
 
   if (e === "NewOpenAlertFixed" || e === "ExistingOpenAlertFixed") {
     fixedAlerts = formattedRecord.fixedAlerts + 1;
-    openAlerts = openAlerts - 1;
+    openAlerts = openAlerts === 0 ? 0 : openAlerts - 1;
   }
 
   if (e === "NewOpenAlertClosed" || e === "ExistingOpenAlertClosed") {
     closedAlerts = formattedRecord.closedAlerts + 1;
-    openAlerts = openAlerts - 1;
+    openAlerts = openAlerts === 0 ? 0 : openAlerts - 1;
   }
 
   if (e === "NewOpenAlertCreated" || e === "ExistingOpenAlertAdded") {
