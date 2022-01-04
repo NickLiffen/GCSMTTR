@@ -9,7 +9,8 @@
     "prettier-check": "npx prettier --check '**/*.{ts,json,md,yaml,yml}'",
     "lint": "npx eslint '**/*.{ts,json}'",
     "lint-fix": "npx eslint --fix '**/*.{ts,json}'",
-    "codespace-setup": ".devcontainer/setup.sh"
+    "codespace-setup": ".devcontainer/setup.sh",
+    "upgrade": ".devcontainer/ncu.sh"
   },
   "repository": {
     "type": "git",
