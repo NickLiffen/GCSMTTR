@@ -14,6 +14,7 @@ name: Testing GSSAR
       - bug/**
       - hotfix/**
       - release/**
+  workflow_dispatch:
 jobs:
   CodeQL:
     runs-on: ubuntu-latest
